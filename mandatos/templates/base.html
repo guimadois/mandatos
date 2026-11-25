@@ -15,6 +15,7 @@
   color-scheme:light;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--texto);font-size:17px;line-height:1.55}
 a{color:var(--destaque);text-underline-offset:3px}
@@ -93,6 +94,15 @@ ul.lista{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
 .metodo h3{font-size:1rem}
 .metodo p{font-size:.93rem;color:var(--suave)}
 .metodo a{font-size:.9rem;font-weight:600;margin-top:auto}
+.abas{display:flex;flex-wrap:wrap;gap:8px}
+.abas a{border:1px solid var(--linha);border-radius:999px;padding:4px 14px;text-decoration:none;color:var(--tinta);font-size:.93rem}
+.abas a[aria-current="page"]{background:var(--destaque);border-color:var(--destaque);color:#fff}
+.filtros{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end}
+.filtros div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.filtros label{font-weight:600;font-size:.9rem}
+.filtros input,.filtros select{font:inherit;padding:8px 10px;border:1px solid var(--suave);border-radius:8px;background:var(--papel);color:var(--tinta);min-width:min(260px,100%)}
+.filtros input:focus-visible,.filtros select:focus-visible{outline:3px solid var(--destaque);outline-offset:1px}
+.filtros p{flex-basis:100%;margin:0}
 .paginacao{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:8px;font-weight:600}
 .conferido{background:var(--fundo-suave);border-bottom:1px solid var(--linha);font-size:.85rem;color:var(--suave)}
 .conferido .miolo{padding-block:6px}

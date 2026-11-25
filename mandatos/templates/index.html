@@ -13,21 +13,36 @@
   <ul class="totais">
   {% for c in cidade.composicao %}
     <li class="total {{ c.chave }}">
-      <span class="n num">{{ "{:,}".format(c.total).replace(",", ".") }}</span>
+      <a class="n num" href="grupo/{{ c.chave }}.html" aria-label="{{ c.total }} {{ c.nome|lower }}: ver todas">{{ "{:,}".format(c.total).replace(",", ".") }}</a>
       <span class="rotulo"><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }}</span>
-      <span class="apoio num">{{ c.pct_txt }} do total</span>
+      <span class="apoio num">{{ c.pct_txt }} do total · <a href="grupo/{{ c.chave }}.html">ver todas</a></span>
     </li>
   {% endfor %}
   </ul>
   <p class="apoio">Cada proposição conta uma vez, mesmo quando tem mais de um autor.</p>
 </section>
 
+<section class="bloco" aria-labelledby="tit-recentes">
+  <h2 id="tit-recentes">Mais recentes</h2>
+  <ul class="props">
+    {% for p in recentes_home %}{% include "_proposicao.html" %}{% endfor %}
+  </ul>
+  <a class="mais" href="recentes.html">Ver as mais recentes da cidade</a>
+</section>
+
 <section class="bloco" aria-labelledby="tit-fichas">
   <h2 id="tit-fichas">Vereadores</h2>
   <p class="apoio">{{ fichas|length }} vereadores titulares da legislatura {{ legislatura }}, em ordem alfabética. Nas fichas contamos autoria e coautoria. O site não dá nota nem faz ranking.</p>
-  <ul class="fichas">
+  <form class="filtros" role="search" aria-label="Encontrar vereador" hidden>
+    <div><label for="busca-nome">Nome</label>
+      <input id="busca-nome" type="search" placeholder="Digite um nome" autocomplete="off"></div>
+    <div><label for="filtro-partido">Partido <span class="apoio">(qualquer um do histórico registrado)</span></label>
+      <select id="filtro-partido"><option value="">Todos</option>{% for p in partidos %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select></div>
+    <p class="apoio" id="filtro-status" aria-live="polite"></p>
+  </form>
+  <ul class="fichas" id="fichas">
   {% for f in fichas %}
-    <li class="ficha">
+    <li class="ficha" data-busca="{{ f.nome }} {{ f.nome_civil or '' }}" data-partidos="|{{ (f.partidos_registrados or '').replace(', ', '|') }}|">
       <h3><a href="vereador/{{ f.slug }}.html">{{ f.nome }}</a></h3>
       {% if f.partidos_registrados %}<span class="apoio">{{ f.partidos_registrados }}</span>{% endif %}
       {% set comp = f.composicao %}{% include "_barra.html" %}
@@ -61,4 +76,24 @@
     <li><h3>Achou um erro?</h3><p>Compare com o documento oficial pelo link de cada proposição e nos avise.</p>{% if contato_correcao %}<a href="{{ contato_correcao }}">Avisar um erro</a>{% else %}<span class="apoio">Canal em preparação</span>{% endif %}</li>
   </ul>
 </section>
+<script>
+/* #5: busca por nome e filtro por partido. Sem JavaScript, o formulário fica oculto e a lista aparece inteira. */
+(function(){
+  var form=document.querySelector(".filtros"), lista=document.getElementById("fichas"); if(!form||!lista) return;
+  form.hidden=false;
+  var itens=[].slice.call(lista.children), nome=document.getElementById("busca-nome"),
+      partido=document.getElementById("filtro-partido"), status=document.getElementById("filtro-status");
+  function norm(s){return (s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();}
+  function filtrar(){
+    var q=norm(nome.value.trim()), p=partido.value, n=0;
+    itens.forEach(function(li){
+      var ok=(!q||norm(li.dataset.busca).indexOf(q)>=0)&&(!p||li.dataset.partidos.indexOf("|"+p+"|")>=0);
+      li.hidden=!ok; if(ok) n++;
+    });
+    status.textContent=(q||p)?(n?n+(n===1?" vereador encontrado":" vereadores encontrados"):"Nenhum vereador encontrado."):"";
+  }
+  nome.addEventListener("input",filtrar); partido.addEventListener("change",filtrar);
+  form.addEventListener("submit",function(e){e.preventDefault();});
+})();
+</script>
 {% endblock %}

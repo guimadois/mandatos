@@ -170,3 +170,24 @@ def test_resumo_da_cidade_conta_cada_proposicao_uma_vez(local, tmp_path):
     index = (saida / "index.html").read_text(encoding="utf-8")
     assert "A Câmara em números" in index and "Como ler estes números" in index  # #1 e #9
     assert 'role="img"' in index and "como-funciona.html#situacao" in index
+
+
+def test_paginas_de_grupo_da_cidade_e_recentes(local, tmp_path):
+    """#3: grupos da cidade com filtro por ano; #2: feed de recentes; #5: dados para busca e filtro."""
+    import re
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    vereadores, props, _ = dados.carregar(destino)
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino)
+    for c in config.CATEGORIAS:
+        html = (saida / "grupo" / f"{c['chave']}.html").read_text(encoding="utf-8")
+        total = sum(1 for p in props.values() if p["categoria"] == c["chave"])
+        assert html.count('class="tit"') == min(total, site.POR_PAGINA)
+        assert (saida / "grupo" / f"{c['chave']}-2026.html").exists()
+    index = (saida / "index.html").read_text(encoding="utf-8")
+    assert 'href="grupo/melhorias.html"' in index and 'href="recentes.html"' in index
+    assert 'id="busca-nome"' in index and 'data-partidos="|' in index
+    recentes = (saida / "recentes.html").read_text(encoding="utf-8")
+    assert recentes.count('class="tit"') == min(len(props), site.POR_PAGINA)
+    # autoria com link para o perfil do vereador nas páginas da cidade
+    assert re.search(r'Autoria: <a href="vereador/[a-z0-9-]+\.html">', recentes)

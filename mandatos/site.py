@@ -13,6 +13,8 @@ RAIZ = Path(__file__).resolve().parent.parent
 SAIDA = RAIZ / "_site"
 RECENTES_POR_CATEGORIA = 10
 POR_PAGINA = 100  # listas longas viram páginas estáticas de até 100 itens (#6)
+RECENTES_HOME = 10      # feed da home (#2)
+RECENTES_MAX = 500      # página "Mais recentes": as 500 últimas; as mais antigas ficam nas páginas de grupo
 
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto",
          "setembro", "outubro", "novembro", "dezembro"]
@@ -65,12 +67,21 @@ def montar_contexto(vereadores, proposicoes, meta):
         fichas.append({**v, "total": len(props), "categorias": cats, "composicao": composicao(cats),
                        "coautoria": sum(1 for p in props if len(p["autores"]) > 1)})
     anos = sorted({p["ano"] for p in proposicoes.values() if p["ano"]})
+    cronologica = sorted(proposicoes.values(), key=lambda r: (r["data"], int(r["numero"] or 0), int(r["id_oficial"])),
+                         reverse=True)
+    slug_por_id = {v["id_oficial"]: v["slug"] for v in vereadores}
+    partidos = sorted({p.strip() for v in vereadores for p in (v["partidos_registrados"] or "").split(",") if p.strip()},
+                      key=dados.chave_alfabetica)
     # Cidade: cada proposição conta uma vez, mesmo com vários autores (#1)
     cont_cidade = Counter(p["categoria"] for p in proposicoes.values())
     cats_cidade = [{**c, "total": cont_cidade.get(c["chave"], 0)} for c in config.CATEGORIAS]
     por_ano = Counter(p["ano"] for p in proposicoes.values())
     return {
         "fichas": fichas,
+        "cronologica": cronologica,
+        "recentes_home": cronologica[:RECENTES_HOME],
+        "slug_por_id": slug_por_id,
+        "partidos": partidos,
         "cidade": {"total": len(proposicoes), "categorias": cats_cidade, "composicao": composicao(cats_cidade),
                    "por_ano": [(a, por_ano[a]) for a in sorted(por_ano)]},
         "categorias": config.CATEGORIAS,
@@ -111,19 +122,35 @@ def gerar(saida=SAIDA, pasta_dados=dados.PASTA_DADOS):
         destino.parent.mkdir(parents=True, exist_ok=True)
         destino.write_text(env.get_template(template).render(**ctx, **extra, raiz=raiz), encoding="utf-8")
 
+    def paginado(pasta, chave, itens, template, raiz, **extra):
+        """Grava itens em páginas de POR_PAGINA: <chave>.html, <chave>-p2.html… (#6)"""
+        paginas = [itens[i:i + POR_PAGINA] for i in range(0, len(itens), POR_PAGINA)] or [[]]
+        for n, pag in enumerate(paginas, 1):
+            escreve(f"{pasta}/{nome_pagina(chave, n)}" if pasta else nome_pagina(chave, n), template, raiz,
+                    itens=pag, pagina=n, total_paginas=len(paginas), total_itens=len(itens),
+                    anterior=nome_pagina(chave, n - 1) if n > 1 else None,
+                    proxima=nome_pagina(chave, n + 1) if n < len(paginas) else None,
+                    primeiro=(n - 1) * POR_PAGINA + 1, ultimo=(n - 1) * POR_PAGINA + len(pag), **extra)
+
     escreve("index.html", "index.html", "")
+    # #3: grupos da cidade, com filtro por ano (páginas estáticas)
+    for c in ctx["cidade"]["categorias"]:
+        do_grupo = [p for p in ctx["cronologica"] if p["categoria"] == c["chave"]]
+        abas = [{"rotulo": "Todos", "ano": None, "arquivo": f"{c['chave']}.html", "total": len(do_grupo)}]
+        abas += [{"rotulo": a, "ano": a, "arquivo": f"{c['chave']}-{a}.html",
+                  "total": sum(1 for p in do_grupo if p["ano"] == a)} for a in ctx["anos"]]
+        for aba in abas:
+            itens = do_grupo if aba["ano"] is None else [p for p in do_grupo if p["ano"] == aba["ano"]]
+            paginado("grupo", aba["arquivo"][:-5], itens, "grupo.html", "../", c=c, abas=abas, aba=aba)
+    # #2: mais recentes da cidade
+    paginado("", "recentes", ctx["cronologica"][:RECENTES_MAX], "recentes.html", "")
     escreve("como-funciona.html", "como_funciona.html", "")
     escreve("sobre.html", "sobre.html", "")
     for f in ctx["fichas"]:
         escreve(f"vereador/{f['slug']}.html", "vereador.html", "../", v=f)
         for c in f["categorias"]:
-            paginas = [c["itens"][i:i + POR_PAGINA] for i in range(0, len(c["itens"]), POR_PAGINA)]
-            for n, itens in enumerate(paginas, 1):
-                escreve(f"vereador/{f['slug']}/{nome_pagina(c['chave'], n)}", "lista.html", "../../", v=f, c=c,
-                        itens=itens, pagina=n, total_paginas=len(paginas),
-                        anterior=nome_pagina(c["chave"], n - 1) if n > 1 else None,
-                        proxima=nome_pagina(c["chave"], n + 1) if n < len(paginas) else None,
-                        primeiro=(n - 1) * POR_PAGINA + 1, ultimo=(n - 1) * POR_PAGINA + len(itens))
+            if c["itens"]:
+                paginado(f"vereador/{f['slug']}", c["chave"], c["itens"], "lista.html", "../../", v=f, c=c)
     (saida / ".nojekyll").write_text("")
     n = sum(1 for _ in saida.rglob("*.html"))
     print(f"site gerado em {saida} ({n} páginas)")

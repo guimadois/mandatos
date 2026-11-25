@@ -11,12 +11,6 @@
   <ul class="props">
     {% for p in itens %}{% include "_proposicao.html" %}{% endfor %}
   </ul>
-  {% if total_paginas > 1 %}
-  <nav class="paginacao" aria-label="Páginas">
-    {% if anterior %}<a href="{{ anterior }}" rel="prev">← Anteriores</a>{% else %}<span></span>{% endif %}
-    <span class="apoio num">{{ pagina }} / {{ total_paginas }}</span>
-    {% if proxima %}<a href="{{ proxima }}" rel="next">Mais antigas →</a>{% else %}<span></span>{% endif %}
-  </nav>
-  {% endif %}
+  {% include "_paginacao.html" %}
 </section>
 {% endblock %}

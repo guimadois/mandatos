@@ -3,6 +3,10 @@
   <span class="det">
     <span class="num">{{ p.data|data_br }}</span>
     {% if p.situacao %}<span>Situação na Câmara: <span class="situacao">{{ p.situacao }}</span></span>{% endif %}
-    {% if p.autores|length > 1 %}<span>Com {{ p.autores|rejectattr("id", "equalto", v.id_oficial)|map(attribute="nome")|join(", ") }}</span>{% endif %}
+    {% if v is defined %}
+      {% if p.autores|length > 1 %}<span>Com {{ p.autores|rejectattr("id", "equalto", v.id_oficial)|map(attribute="nome")|join(", ") }}</span>{% endif %}
+    {% else %}
+      <span>{% if p.autores|length > 1 %}Autores{% else %}Autoria{% endif %}: {% for a in p.autores %}{% if a.id in slug_por_id %}<a href="{{ raiz }}vereador/{{ slug_por_id[a.id] }}.html">{{ a.nome }}</a>{% else %}{{ a.nome }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</span>
+    {% endif %}
   </span>
 </li>
