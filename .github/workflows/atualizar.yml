@@ -19,9 +19,6 @@ concurrency:
 jobs:
   atualizar:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
 
@@ -57,5 +54,15 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
+
+  # Publicação em job separado (modelo oficial do GitHub): evita a corrida em que o deploy
+  # procura o artefato antes de ele estar registrado ("No artifacts named github-pages").
+  publicar:
+    needs: atualizar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
       - id: deploy
         uses: actions/deploy-pages@v5
