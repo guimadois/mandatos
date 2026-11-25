@@ -59,7 +59,7 @@ GitHub Actions runs the whole pipeline daily at 04:30 local time, after the Coun
 ### Known limitations
 - No bill summaries yet, so categories rely on the official document type only, and motions still mix tributes with protests.
 - Attendance and roll-call votes exist on the Council website, but only as HTML. They wait for authorization or for inclusion in the Open Data files.
-- After the PoC, the development machine started receiving a CAPTCHA even on the Open Data files. Collection from production (GitHub Actions) still needs to be validated.
+- **Automated collection is currently blocked.** Since the PoC, the Council requires a CAPTCHA even to download the Open Data files, including from GitHub Actions. The bot tries once a day, stops at the CAPTCHA without bypassing it, and keeps the site on the last good data (2026 CSV, from Nov 25, 2026). The issue will be raised with the Council's ombudsman.
 
 ### Roadmap
 1. Formal request to the Council's ombudsman: authorization for the bot, plus bill summaries, attendance and votes in the Open Data files.

@@ -59,7 +59,7 @@ O GitHub Actions roda tudo diariamente às 04:30, depois que a Câmara regera os
 ### Limitações conhecidas
 - Sem ementa: os grupos são definidos só pelo tipo do documento, e as moções ainda não separam homenagem de repúdio.
 - Presença e votos nominais existem no site da Câmara, mas só em HTML. Aguardam autorização ou inclusão nos Dados Abertos.
-- Depois da PoC, a máquina de desenvolvimento passou a receber CAPTCHA até nos Dados Abertos. A coleta em produção (GitHub Actions) ainda precisa ser validada.
+- **Hoje a coleta automática está bloqueada.** Desde a PoC, a Câmara exige CAPTCHA até para baixar os Dados Abertos, inclusive a partir do GitHub Actions. O robô tenta 1 vez por dia, para no CAPTCHA sem contornar e mantém o site com os últimos dados bons (CSV de 2026, de 25/11/2026). O caso será levado à Ouvidoria/SIC.
 
 ### Próximos passos
 1. Pedido à Ouvidoria/SIC da Câmara: autorização para o robô e inclusão de ementa, presença e votos nos Dados Abertos.
