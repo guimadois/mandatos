@@ -73,4 +73,4 @@ Python 3.12 · requests · Jinja2 · pytest · GitHub Actions · GitHub Pages. N
 See [README.md](README.md#rodar-localmente); the commands are the same.
 
 ## Credits and license
-Inspired by the guide *Como criar o Radar da sua cidade* by Gabriel Damasceno (Hortolândia, Brazil). Code under the [MIT](LICENSE) license. Data © Câmara de Vereadores de Joinville.
+Inspired by the guide *Como criar o Radar da sua cidade* by Gabriel Damasceno (Hortolândia, Brazil). Code under the [MIT](LICENSE) license. The preview image uses the Noto Sans font (SIL Open Font License 1.1, in `mandatos/fontes/`). Data © Câmara de Vereadores de Joinville.

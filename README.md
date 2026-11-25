@@ -110,4 +110,4 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 | `poc/` | Prova de conceito: relatório, amostra e coletor |
 
 ## Créditos e licença
-Inspirado no manual *Como criar o Radar da sua cidade*, de Gabriel Damasceno (Hortolândia-SP). Código sob licença [MIT](LICENSE). Os dados são da Câmara de Vereadores de Joinville.
+Inspirado no manual *Como criar o Radar da sua cidade*, de Gabriel Damasceno (Hortolândia-SP). Código sob licença [MIT](LICENSE). A imagem de pré-visualização usa a fonte Noto Sans (SIL Open Font License 1.1, em `mandatos/fontes/`). Os dados são da Câmara de Vereadores de Joinville.

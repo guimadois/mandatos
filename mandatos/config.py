@@ -9,6 +9,7 @@ NOME_SITE = f"{MARCA} {LOCAL}"
 AUTOR = "Guilherme Alberto Moreira dos Santos"
 AUTOR_LINKEDIN = "https://www.linkedin.com/in/guilherme-alberto-moreira-dos-santos-784185145/"
 REPOSITORIO = "https://github.com/guimadois/mandatos"
+SITE_URL = "https://guimadois.github.io/mandatos/"  # endereço público (links absolutos do Open Graph)
 
 BASE = "https://camara.joinville.br"
 INDICE_DADOS_ABERTOS = f"{BASE}/DadosAbertos/download/dados-abertos.json"

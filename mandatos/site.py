@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from PIL import Image, ImageDraw, ImageFont
 
 from . import config, dados
 
@@ -32,6 +33,44 @@ def data_extenso(iso):
         return ""
     dt = datetime.fromisoformat(iso)
     return f"{dt.day} de {MESES[dt.month - 1]} de {dt.year}, {dt:%H:%M}"
+
+
+CORES = {"melhorias": "#2f7d4f", "perguntas": "#a35d00", "leis": "#0a5a8c", "mocoes": "#8a4fa8",
+         "requerimentos": "#5a6874"}
+
+
+def imagem_og(destino, composicao_cidade):
+    """Imagem genérica de pré-visualização (1200x630). Usa a fonte Noto Sans que vai
+    junto com o projeto (não depende das fontes do servidor) e o nome da marca da config."""
+    W, H, M = 1200, 630, 80
+    img = Image.new("RGB", (W, H), "#ffffff")
+    d = ImageDraw.Draw(img)
+    pasta = Path(__file__).parent / "fontes"  # Noto Sans (SIL OFL 1.1), cobre os acentos do português
+    fonte = lambda t, negrito=False: ImageFont.truetype(
+        str(pasta / ("NotoSans-Bold.ttf" if negrito else "NotoSans-Regular.ttf")), t)
+    d.text((M, 110), config.MARCA, font=fonte(84, True), fill="#17222c")
+    larg = d.textlength(config.MARCA + " ", font=fonte(84, True))
+    d.text((M + larg, 110), config.LOCAL, font=fonte(84, True), fill="#0a5a8c")
+    d.text((M, 240), "O que cada vereador apresentou na Câmara", font=fonte(44), fill="#17222c")
+    d.text((M, 300), "Só dados oficiais, com link para cada documento", font=fonte(34), fill="#5a6874")
+    x, y, total_w, h, vao = M, 400, W - 2 * M, 28, 4
+    segs = [c for c in composicao_cidade if c["total"]]
+    util = total_w - vao * (len(segs) - 1)  # desconta os vãos para nenhum segmento ser cortado
+    for i, c in enumerate(segs):
+        w = max(3, round(util * c["pct"] / 100))
+        if i == len(segs) - 1:
+            w = M + total_w - x  # o último fecha exatamente na margem
+        d.rectangle([x, y, x + w - 1, y + h], fill=CORES.get(c["chave"], "#5a6874"))
+        x += w + vao
+    d.text((M, 500), "Dados Abertos da Câmara de Vereadores de Joinville", font=fonte(30), fill="#5a6874")
+    img.save(destino, "PNG", optimize=True)
+
+
+def descricao_vereador(f, periodo):
+    """Descrição neutra, só com números, para buscadores e pré-visualização."""
+    partes = [f'{c["total"]} {c["nome"].lower()}' for c in f["categorias"] if c["total"]]
+    return (f'{f["nome"]}: {f["total"]} proposições em {periodo}, como autor ou coautor'
+            + (": " + ", ".join(partes) if partes else "") + ". Dados oficiais da Câmara de Joinville.")
 
 
 def composicao(categorias):
@@ -100,6 +139,7 @@ def montar_contexto(vereadores, proposicoes, meta):
         "csv_vereadores": next((f for f in meta.get("fontes", []) if f.endswith("vereadores.csv")), None),
         "csvs_documentos": [f for f in meta.get("fontes", []) if "/documentos-" in f],
         "dados_abertos": config.BASE + "/DadosAbertos",
+        "site_url": config.SITE_URL,
     }
 
 
@@ -120,7 +160,7 @@ def gerar(saida=SAIDA, pasta_dados=dados.PASTA_DADOS):
     def escreve(rel, template, raiz, **extra):
         destino = saida / rel
         destino.parent.mkdir(parents=True, exist_ok=True)
-        destino.write_text(env.get_template(template).render(**ctx, **extra, raiz=raiz), encoding="utf-8")
+        destino.write_text(env.get_template(template).render(**ctx, **extra, raiz=raiz, caminho=rel), encoding="utf-8")
 
     def paginado(pasta, chave, itens, template, raiz, **extra):
         """Grava itens em páginas de POR_PAGINA: <chave>.html, <chave>-p2.html… (#6)"""
@@ -147,10 +187,12 @@ def gerar(saida=SAIDA, pasta_dados=dados.PASTA_DADOS):
     escreve("como-funciona.html", "como_funciona.html", "")
     escreve("sobre.html", "sobre.html", "")
     for f in ctx["fichas"]:
-        escreve(f"vereador/{f['slug']}.html", "vereador.html", "../", v=f)
+        escreve(f"vereador/{f['slug']}.html", "vereador.html", "../", v=f,
+                descricao_meta=descricao_vereador(f, ctx["periodo"]))
         for c in f["categorias"]:
             if c["itens"]:
                 paginado(f"vereador/{f['slug']}", c["chave"], c["itens"], "lista.html", "../../", v=f, c=c)
+    imagem_og(saida / "og.png", ctx["cidade"]["composicao"])
     (saida / ".nojekyll").write_text("")
     n = sum(1 for _ in saida.rglob("*.html"))
     print(f"site gerado em {saida} ({n} páginas)")

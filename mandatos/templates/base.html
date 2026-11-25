@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{% block titulo %}{{ nome_site }}{% endblock %}</title>
 <meta name="description" content="{% block descricao %}O que cada vereador de Joinville apresenta na Câmara, só com dados oficiais e link para a fonte.{% endblock %}">
+{% set url_pagina = site_url ~ ("" if caminho == "index.html" else caminho) %}
+<link rel="canonical" href="{{ url_pagina }}">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="{{ nome_site }}">
+<meta property="og:title" content="{{ self.titulo()|trim }}">
+<meta property="og:description" content="{{ self.descricao()|trim }}">
+<meta property="og:url" content="{{ url_pagina }}">
+<meta property="og:image" content="{{ site_url }}og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ nome_site }}: o que cada vereador apresentou na Câmara">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 /* Layout: coluna única de leitura no celular; fichas em grade no desktop. Fundo branco, uma cor de destaque. */
 :root{

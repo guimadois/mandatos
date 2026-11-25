@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}{{ v.nome }} · {{ nome_site }}{% endblock %}
-{% block descricao %}O que {{ v.nome }} apresentou na Câmara de Joinville em {{ periodo }}, com link para cada documento oficial.{% endblock %}
+{% block descricao %}{{ descricao_meta }}{% endblock %}
 {% block conteudo %}
 <section class="bloco">
   <p class="apoio"><a href="../index.html">Vereadores</a> › {{ v.nome }}</p>

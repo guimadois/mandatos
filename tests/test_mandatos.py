@@ -191,3 +191,23 @@ def test_paginas_de_grupo_da_cidade_e_recentes(local, tmp_path):
     assert recentes.count('class="tit"') == min(len(props), site.POR_PAGINA)
     # autoria com link para o perfil do vereador nas páginas da cidade
     assert re.search(r'Autoria: <a href="vereador/[a-z0-9-]+\.html">', recentes)
+
+
+def test_open_graph_em_todas_as_paginas(local, tmp_path):
+    """#7: tags de pré-visualização com URL absoluta e imagem gerada."""
+    import re
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino)
+    for html in saida.rglob("*.html"):
+        s = html.read_text(encoding="utf-8")
+        rel = html.relative_to(saida).as_posix()
+        assert '<meta property="og:title" content="' in s, rel
+        url = re.search(r'<meta property="og:url" content="([^"]+)"', s).group(1)
+        esperado = config.SITE_URL + ("" if rel == "index.html" else rel)
+        assert url == esperado, rel
+    perfil = (saida / "vereador" / "instrutor-lucas-213714.html").read_text(encoding="utf-8")
+    desc = re.search(r'<meta property="og:description" content="([^"]+)"', perfil).group(1)
+    assert desc.startswith("Instrutor Lucas: ") and "proposições" in desc
+    from PIL import Image
+    assert Image.open(saida / "og.png").size == (1200, 630)
