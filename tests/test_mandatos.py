@@ -152,3 +152,21 @@ def test_listas_longas_paginadas(local, tmp_path, monkeypatch):
     assert "melhorias.html" in paginas and "melhorias-p2.html" in paginas
     p1 = (pasta / "melhorias.html").read_text(encoding="utf-8")
     assert 'rel="next"' in p1 and "melhorias-p2.html" in p1
+
+
+def test_resumo_da_cidade_conta_cada_proposicao_uma_vez(local, tmp_path):
+    """#1: totais da cidade = proposições únicas; #4: proporções somam 100%."""
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    vereadores, props, meta = dados.carregar(destino)
+    ctx = site.montar_contexto(vereadores, props, meta)
+    assert ctx["cidade"]["total"] == len(props)
+    assert sum(c["total"] for c in ctx["cidade"]["categorias"]) == len(props)
+    assert abs(sum(c["pct"] for c in ctx["cidade"]["composicao"]) - 100) < 1e-6
+    for f in ctx["fichas"]:
+        if f["total"]:
+            assert abs(sum(c["pct"] for c in f["composicao"]) - 100) < 1e-6
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino)
+    index = (saida / "index.html").read_text(encoding="utf-8")
+    assert "A Câmara em números" in index and "Como ler estes números" in index  # #1 e #9
+    assert 'role="img"' in index and "como-funciona.html#situacao" in index

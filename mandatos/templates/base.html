@@ -79,6 +79,20 @@ table.regra th,table.regra td{text-align:left;padding:8px 10px;border-bottom:1px
 table.regra th{color:var(--suave);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
 ul.lista{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;max-width:66ch}
 
+.barra{display:flex;gap:2px;height:10px;border-radius:5px;overflow:hidden;background:var(--linha)}
+.barra .seg{display:block;height:100%;min-width:2px}
+.seg.melhorias{background:var(--c-melhorias)} .seg.perguntas{background:var(--c-perguntas)} .seg.leis{background:var(--c-leis)}
+.seg.mocoes{background:var(--c-mocoes)} .seg.requerimentos{background:var(--c-requerimentos)}
+.cidade .grande{font-size:clamp(1.8rem,6vw,2.4rem);letter-spacing:-.02em}
+.totais{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.total{border:1px solid var(--linha);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.total .n{font-size:1.5rem;font-weight:800;line-height:1.1}
+.total .rotulo{display:flex;align-items:center;gap:6px;font-weight:600;font-size:.93rem}
+.metodo{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}
+.metodo li{background:var(--fundo-suave);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.metodo h3{font-size:1rem}
+.metodo p{font-size:.93rem;color:var(--suave)}
+.metodo a{font-size:.9rem;font-weight:600;margin-top:auto}
 .paginacao{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:8px;font-weight:600}
 .conferido{background:var(--fundo-suave);border-bottom:1px solid var(--linha);font-size:.85rem;color:var(--suave)}
 .conferido .miolo{padding-block:6px}

@@ -12,6 +12,7 @@
 
 <section class="bloco">
   <p><strong class="num">{{ v.total }}</strong> proposições em {{ periodo }}, como autor ou coautor{% if v.coautoria %} ({{ v.coautoria }} em coautoria){% endif %}.</p>
+  {% set comp = v.composicao %}{% include "_barra.html" %}
   <ul class="resumo-vereador">
   {% for c in v.categorias %}
     <li><a href="#{{ c.chave }}"><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }} <b>{{ c.total }}</b></a></li>

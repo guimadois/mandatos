@@ -32,6 +32,17 @@ def data_extenso(iso):
     return f"{dt.day} de {MESES[dt.month - 1]} de {dt.year}, {dt:%H:%M}"
 
 
+def composicao(categorias):
+    """Proporção de cada grupo (para a barra). Percentuais exatos para a largura; arredondados só para exibir."""
+    total = sum(c["total"] for c in categorias)
+    out = []
+    for c in categorias:
+        pct = 100 * c["total"] / total if total else 0
+        out.append({"chave": c["chave"], "nome": c["nome"], "total": c["total"], "pct": pct,
+                    "pct_txt": f"{pct:.0f}%" if pct >= 1 or pct == 0 else "<1%"})
+    return out
+
+
 def nome_pagina(chave, n):
     return f"{chave}.html" if n == 1 else f"{chave}-p{n}.html"
 
@@ -51,11 +62,17 @@ def montar_contexto(vereadores, proposicoes, meta):
             itens = [p for p in props if p["categoria"] == c["chave"]]
             cats.append({**c, "total": cont.get(c["chave"], 0), "itens": itens,
                          "recentes": itens[:RECENTES_POR_CATEGORIA]})
-        fichas.append({**v, "total": len(props), "categorias": cats,
+        fichas.append({**v, "total": len(props), "categorias": cats, "composicao": composicao(cats),
                        "coautoria": sum(1 for p in props if len(p["autores"]) > 1)})
     anos = sorted({p["ano"] for p in proposicoes.values() if p["ano"]})
+    # Cidade: cada proposição conta uma vez, mesmo com vários autores (#1)
+    cont_cidade = Counter(p["categoria"] for p in proposicoes.values())
+    cats_cidade = [{**c, "total": cont_cidade.get(c["chave"], 0)} for c in config.CATEGORIAS]
+    por_ano = Counter(p["ano"] for p in proposicoes.values())
     return {
         "fichas": fichas,
+        "cidade": {"total": len(proposicoes), "categorias": cats_cidade, "composicao": composicao(cats_cidade),
+                   "por_ano": [(a, por_ano[a]) for a in sorted(por_ano)]},
         "categorias": config.CATEGORIAS,
         "meta": meta,
         "anos": anos,

@@ -1,0 +1,4 @@
+{# Barra de composição acessível: a barra é decorativa; os números ficam em texto para leitor de tela. #}
+<div class="barra" role="img" aria-label="{% for c in comp %}{{ c.nome }}: {{ c.pct_txt }}{% if not loop.last %}; {% endif %}{% endfor %}">
+  {% for c in comp if c.total %}<span class="seg {{ c.chave }}" style="width:{{ '%.4f'|format(c.pct) }}%" title="{{ c.nome }}: {{ c.total }} ({{ c.pct_txt }})"></span>{% endfor %}
+</div>
