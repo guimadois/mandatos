@@ -43,9 +43,45 @@ def subsidio(cfg):
     if not all((cfg or {}).get(k) for k in ("valor_lei", "lei", "lei_url")):
         return None
     atual = round(float(cfg["valor_lei"]), 2)
+    periodos = [{"mes": cfg.get("inicio"), "valor": atual}]
     for r in cfg.get("revisoes", []):
         atual = round(atual * (1 + r["pct"] / 100), 2)
-    return {**cfg, "revisoes": cfg.get("revisoes", []), "atual": atual}
+        periodos.append({"mes": r.get("mes"), "valor": atual})
+    return {**cfg, "revisoes": cfg.get("revisoes", []), "atual": atual, "periodos": periodos}
+
+
+def _mes_n(ym):
+    a, m = ym.split("-")
+    return int(a) * 12 + int(m) - 1
+
+
+def _mes_nome(n):
+    return f"{MESES[n % 12]} de {n // 12}"
+
+
+def estimativa(sub, hoje):
+    """#29: total estimado pago às cadeiras, só meses completos, desde o início dos efeitos da lei.
+    Valor do mês = o do último período (lei ou revisão) que começou até aquele mês.
+    A mesma conta é refeita no navegador (index.html); manter as duas iguais."""
+    if not sub or not sub.get("cadeiras") or not sub.get("inicio") or any(not p["mes"] for p in sub["periodos"]):
+        return None
+    ini, fim = _mes_n(sub["inicio"]), hoje.year * 12 + hoje.month - 1  # fim = mês atual, ainda não completo
+    if fim <= ini:
+        return None
+    linhas = []
+    for i, p in enumerate(sub["periodos"]):
+        de = max(_mes_n(p["mes"]), ini)
+        ate = min(_mes_n(sub["periodos"][i + 1]["mes"]) if i + 1 < len(sub["periodos"]) else fim, fim)
+        if ate > de:
+            linhas.append({"de": _mes_nome(de), "ate": _mes_nome(ate - 1), "meses": ate - de, "valor": p["valor"],
+                           "subtotal": round(p["valor"] * (ate - de) * sub["cadeiras"], 2)})
+    total = round(sum(l["subtotal"] for l in linhas), 2)
+    return {"total": total, "linhas": linhas, "meses": fim - ini, "de": _mes_nome(ini), "ate": _mes_nome(fim - 1)}
+
+
+def milhoes(v):
+    """7893428.4 -> "7,9" (para "R$ 7,9 milhões")."""
+    return f"{v / 1e6:.1f}".replace(".", ",")
 
 
 def data_br(iso):
@@ -123,8 +159,9 @@ def iniciais(nome):
     return (partes[0][0] + (partes[-1][0] if len(partes) > 1 else "")).upper()
 
 
-def montar_contexto(vereadores, proposicoes, meta, fotos=None):
+def montar_contexto(vereadores, proposicoes, meta, fotos=None, hoje=None):
     fotos = fotos or {}
+    hoje = hoje or datetime.now(config.TZ).date()
     por_vereador = {v["id_oficial"]: [] for v in vereadores}
     for p in sorted(proposicoes.values(), key=lambda r: (r["data"], int(r["numero"] or 0), int(r["id_oficial"])), reverse=True):
         for a in p["autores"]:
@@ -177,14 +214,15 @@ def montar_contexto(vereadores, proposicoes, meta, fotos=None):
         "csvs_documentos": [f for f in meta.get("fontes", []) if "/documentos-" in f],
         "dados_abertos": config.BASE + "/DadosAbertos",
         "site_url": config.SITE_URL,
-        "subsidio": subsidio(config.SUBSIDIO),
+        "subsidio": (sub := subsidio(config.SUBSIDIO)),
+        "estimativa": estimativa(sub, hoje),
         "tse": {"dataset": config.TSE_DATASET, "licenca": config.TSE_LICENCA, "licenca_url": config.TSE_LICENCA_URL,
                 "ano": config.TSE_ANO, "com_foto": sum(1 for f in fichas if f["foto"]),
                 "manuais": [f["nome"] for f in fichas if f["foto"] and f["foto"]["regra"] == "conferido manualmente"]},
     }
 
 
-def gerar(saida=SAIDA, pasta_dados=dados.PASTA_DADOS):
+def gerar(saida=SAIDA, pasta_dados=dados.PASTA_DADOS, hoje=None):
     vereadores, proposicoes, meta = dados.carregar(pasta_dados)
     if not vereadores or not proposicoes:
         raise SystemExit("dados/ vazio: rode antes  python -m mandatos.coletar")
@@ -193,9 +231,10 @@ def gerar(saida=SAIDA, pasta_dados=dados.PASTA_DADOS):
     env.filters["data_br"] = data_br
     env.filters["milhar"] = milhar
     env.filters["reais"] = reais
+    env.filters["milhoes"] = milhoes
     env.filters["data_extenso"] = data_extenso
     fotos = dados.carregar_fotos(pasta_dados)
-    ctx = montar_contexto(vereadores, proposicoes, meta, fotos)
+    ctx = montar_contexto(vereadores, proposicoes, meta, fotos, hoje)
 
     if saida.exists():
         shutil.rmtree(saida)

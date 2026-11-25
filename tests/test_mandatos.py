@@ -319,3 +319,67 @@ def test_subsidio_revisoes_em_sequencia():
 def test_valor_em_reais():
     assert site.reais(19500) == "R$\u00a019.500,00"
     assert site.reais(29250.5) == "R$\u00a029.250,50"
+
+
+# ---------------------------------------------------------------- estimativa do total pago (#29) e abertura (#28)
+SUB_TESTE = {"valor_lei": 19500, "presidente_lei": 26080.98, "lei": "Lei nº 1, de 2023", "lei_url": "https://exemplo.gov.br/lei-1",
+             "inicio": "2025-02", "cadeiras": 19, "cadeiras_fonte": "https://exemplo.gov.br/vagas",
+             "revisoes": [{"lei": "Lei nº 2, de 2026", "pct": 3.81, "desde": "março de 2026", "mes": "2026-03",
+                           "url": "https://exemplo.gov.br/lei-2"}]}
+
+
+def test_estimativa_muda_de_valor_na_revisao():
+    from datetime import date
+    sub = site.subsidio(SUB_TESTE)
+    e = site.estimativa(sub, date(2026, 11, 25))  # outubro é o último mês completo
+    assert [(l["meses"], l["valor"]) for l in e["linhas"]] == [(13, 19500.0), (8, 20242.95)]
+    assert e["total"] == round(19 * (13 * 19500 + 8 * 20242.95), 2) == 7893428.40
+    assert e["de"] == "fevereiro de 2025" and e["ate"] == "outubro de 2026"
+    e = site.estimativa(sub, date(2026, 3, 31))  # março ainda não completo: só o valor da lei
+    assert [(l["meses"], l["valor"]) for l in e["linhas"]] == [(13, 19500.0)]
+    assert site.estimativa(sub, date(2025, 2, 28)) is None  # nenhum mês completo
+    assert site.estimativa(site.subsidio({**SUB_TESTE, "cadeiras": None}), date(2026, 11, 25)) is None
+    assert site.milhoes(7893428.40) == "7,9"
+
+
+def test_estimativa_na_home_e_metodo(local, tmp_path, monkeypatch):
+    from datetime import date
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    monkeypatch.setattr(config, "SUBSIDIO", SUB_TESTE)
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino, hoje=date(2026, 11, 25))
+    index = (saida / "index.html").read_text(encoding="utf-8")
+    assert '<section class="bloco abertura">' in index  # #28
+    assert "Estimativa" in index and "R$&nbsp;7,9 milhões" in index and "outubro de 2026" in index
+    assert "subindo" not in index and "setInterval" not in index and "requestAnimationFrame" not in index
+    cf = (saida / "como-funciona.html").read_text(encoding="utf-8")
+    assert 'id="estimativa"' in cf and "R$\u00a07.893.428,40" in cf and 'href="https://exemplo.gov.br/vagas"' in cf
+
+
+def test_estimativa_js_igual_ao_python(local, tmp_path, monkeypatch):
+    """A conta refeita no navegador dá o mesmo resultado que a do Python (roda o script com Node, se houver)."""
+    import re
+    import shutil as sh
+    import subprocess
+    from datetime import date
+    node = sh.which("node")
+    if not node:
+        pytest.skip("node não instalado")
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    monkeypatch.setattr(config, "SUBSIDIO", SUB_TESTE)
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino, hoje=date(2026, 11, 25))
+    index = (saida / "index.html").read_text(encoding="utf-8")
+    el = re.search(r'<p class="subsidio estimativa" id="estimativa"\s+data-inicio="([^"]+)" data-cadeiras="(\d+)"\s+'
+                   r"data-periodos='([^']+)'>", index)
+    script = re.search(r"/\* #29:.*?\*/(.*?)</script>", index, re.S).group(1)
+    harness = f"""
+      var RealDate=Date; Date=function(){{return new RealDate(2026,10,25);}};
+      var nos={{}}; function no(id){{return nos[id]||(nos[id]={{textContent:""}});}}
+      var estimativa={{dataset:{{inicio:{el.group(1)!r},cadeiras:{el.group(2)!r},periodos:{el.group(3)!r}}}}};
+      var document={{getElementById:function(id){{return id==="estimativa"?estimativa:no(id);}}}};
+      {script}
+      console.log(no("estimativa-total").textContent+"|"+no("estimativa-ate").textContent);
+    """
+    out = subprocess.run([node, "-e", harness], capture_output=True, text=True, check=True).stdout.strip()
+    assert out == "R$\u00a07,9 milhões|outubro de 2026"

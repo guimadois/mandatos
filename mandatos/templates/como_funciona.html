@@ -40,6 +40,38 @@
 </section>
 {% endif %}
 
+{% if estimativa %}
+<section class="bloco" id="estimativa">
+  <h2>Como calculamos a estimativa do total pago</h2>
+  <p>Na página inicial mostramos quanto, aproximadamente, foi pago em subsídios desde o início da legislatura. É uma <strong>estimativa</strong> nossa, não um valor oficial da Câmara.</p>
+  <p><strong>Conta:</strong> {{ subsidio.cadeiras }} cadeiras × subsídio de cada mês × meses completos, de {{ estimativa.de }} até o último mês completo. Até {{ estimativa.ate }}:</p>
+  <div class="tabela">
+  <table class="regra">
+    <thead><tr><th>Período</th><th>Subsídio por mês</th><th>Meses</th><th>Subtotal ({{ subsidio.cadeiras }} cadeiras)</th></tr></thead>
+    <tbody>
+    {% for l in estimativa.linhas %}
+      <tr><td>{{ l.de }}{% if l.de != l.ate %} a {{ l.ate }}{% endif %}</td><td class="num">{{ l.valor|reais }}</td><td class="num">{{ l.meses }}</td><td class="num">{{ l.subtotal|reais }}</td></tr>
+    {% endfor %}
+      <tr><td colspan="3"><strong>Total estimado</strong></td><td class="num"><strong>{{ estimativa.total|reais }}</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="apoio">Tabela calculada na data em que o site foi gerado. Na página inicial, o navegador refaz a conta com a data de hoje.</p>
+  <ul class="lista">
+    <li><strong>Cadeiras, não pessoas:</strong> a Câmara tem {{ subsidio.cadeiras }} cadeiras (<a href="{{ subsidio.cadeiras_fonte }}" rel="noopener">vagas das Eleições 2024, Dados Abertos do TSE</a>). Quando um suplente assume, ele ocupa a mesma cadeira. Por isso a lista de vereadores, que inclui suplentes que assumiram, tem mais nomes.</li>
+    <li><strong>Começa em {{ estimativa.de }}:</strong> a lei produz efeitos a partir dessa data (art. 7º). A posse foi em 1º de janeiro de 2025; janeiro fica fora da conta.</li>
+    <li><strong>Só meses completos:</strong> o mês em curso não entra.</li>
+  </ul>
+  <p><strong>O que a conta simplifica:</strong></p>
+  <ul class="lista">
+    <li>Todos com o mesmo valor: não soma a diferença de quem preside a Câmara{% if subsidio.presidente_lei %} ({{ subsidio.presidente_lei|reais }} na lei){% endif %}.</li>
+    <li>Dezembro inteiro: a lei paga dezembro proporcional às sessões até o dia 16 (art. 3º).</li>
+    <li>Sem descontos por falta sem justificativa (art. 2º).</li>
+    <li>Valor bruto: antes de imposto de renda e previdência. Não inclui assessores, gabinete nem outros gastos da Câmara.</li>
+  </ul>
+</section>
+{% endif %}
+
 <section class="bloco" id="fotos">
   <h2>De onde vêm as fotos</h2>
   <p>As fotos são as que cada vereador entregou à Justiça Eleitoral ao registrar a candidatura nas Eleições {{ tse.ano }}. Elas estão nos <a href="{{ tse.dataset }}" rel="noopener">Dados Abertos do TSE</a>, sob licença <a href="{{ tse.licenca_url }}" rel="noopener">{{ tse.licenca }}</a>. Não usamos fotos do site da Câmara.</p>

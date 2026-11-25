@@ -75,6 +75,10 @@ p{margin:0;max-width:66ch}
 .perfil-dados{display:flex;flex-direction:column;gap:6px;flex:1 1 220px;min-width:0}
 .credito{font-size:.82rem}
 .subsidio{background:var(--fundo-suave);border-radius:8px;padding:10px 14px;font-size:.95rem;max-width:none}
+/* #28: abertura da home numa largura só, para texto e quadros terminarem na mesma borda */
+.abertura{max-width:66ch}
+.abertura p{max-width:none}
+.rotulo-estimativa{display:inline-block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--suave);border:1px solid var(--suave);border-radius:4px;padding:0 6px;margin-right:4px;vertical-align:.1em}
 .contagens{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
 .contagens li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
 .contagens .n{font-weight:700;text-align:right}

@@ -35,8 +35,12 @@ SUBSIDIO = {
     "presidente_lei": 26080.98,  # art. 4º: quem preside a Mesa Diretora
     "lei": "Lei nº 9.503, de 17 de novembro de 2023",
     "lei_url": DOM + "0423404b5a7eea39ca59e91d2d272e43.pdf#page=3",  # Diário Oficial nº 2340, págs. 3–4
+    "inicio": "2025-02",         # art. 7º: efeitos a contar de 1º de fevereiro de 2025
+    # Estimativa do total pago (#29): cadeiras, não pessoas (suplentes que assumem ocupam a mesma cadeira)
+    "cadeiras": 19,
+    "cadeiras_fonte": "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_vagas/consulta_vagas_2024.zip",
     "revisoes": [  # revisão geral anual (art. 5º); em março de 2025 não houve lei de revisão do subsídio
-        {"lei": "Lei nº 10.120, de 18 de março de 2026", "pct": 3.81, "desde": "março de 2026",
+        {"lei": "Lei nº 10.120, de 18 de março de 2026", "pct": 3.81, "desde": "março de 2026", "mes": "2026-03",
          "url": DOM + "1e6e5477837967001495e53a675aefa9.pdf#page=4"},  # Diário Oficial nº 2924, págs. 4–5
     ],
 }

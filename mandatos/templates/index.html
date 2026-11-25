@@ -1,10 +1,20 @@
 {% extends "base.html" %}
 {% block conteudo %}
-<section class="bloco">
+<section class="bloco abertura">
   <h1>O que cada vereador de Joinville apresentou na Câmara</h1>
   <p>Pedidos de melhoria, perguntas à Prefeitura, projetos de lei e moções de {{ periodo }}, contados a partir dos dados oficiais da Câmara. Cada proposição leva ao documento original.</p>
   {% if subsidio %}
   <p class="subsidio">Cada vereador recebe um subsídio de <strong class="num">{{ subsidio.atual|reais }}</strong> por mês, valor bruto{% if subsidio.presidente_lei %} (quem preside a Câmara recebe mais){% endif %}{% if subsidio.revisoes %} <span class="apoio">(cálculo nosso: {{ subsidio.valor_lei|reais }} da <a href="{{ subsidio.lei_url }}" rel="noopener">{{ subsidio.lei }}</a>{% for r in subsidio.revisoes %} + {{ "%.2f"|format(r.pct)|replace(".", ",") }}% da <a href="{{ r.url }}" rel="noopener">{{ r.lei }}</a>{% endfor %})</span>{% else %}, fixado pela <a href="{{ subsidio.lei_url }}" rel="noopener">{{ subsidio.lei }}</a>{% endif %}. <a href="como-funciona.html#subsidio">Entenda o valor</a></p>
+  {% endif %}
+  {% if estimativa %}
+  <p class="subsidio estimativa" id="estimativa"
+     data-inicio="{{ subsidio.inicio }}" data-cadeiras="{{ subsidio.cadeiras }}"
+     data-periodos='{{ subsidio.periodos|tojson }}'>
+    <span class="rotulo-estimativa">Estimativa</span>
+    Cerca de <strong class="num" id="estimativa-total">R$&nbsp;{{ estimativa.total|milhoes }} milhões</strong> em subsídios pagos às {{ subsidio.cadeiras }} cadeiras da Câmara, de <span id="estimativa-de">{{ estimativa.de }}</span> a <span id="estimativa-ate">{{ estimativa.ate }}</span>.
+    <span class="apoio">Conta: {{ subsidio.cadeiras }} cadeiras × subsídio de cada mês × meses completos.</span>
+    <a href="como-funciona.html#estimativa">Como calculamos</a>
+  </p>
   {% endif %}
 </section>
 
@@ -84,6 +94,25 @@
     <li><h3>Achou um erro?</h3><p>Compare com o documento oficial pelo link de cada proposição e nos avise.</p>{% if contato_correcao %}<a href="{{ contato_correcao }}">Avisar um erro</a>{% else %}<span class="apoio">Canal em preparação</span>{% endif %}</li>
   </ul>
 </section>
+{% if estimativa %}
+<script>
+/* #29: a mesma conta de site.estimativa(), refeita com a data de hoje (o site é estático). Sem animação. */
+(function(){
+  var el=document.getElementById("estimativa"); if(!el) return;
+  var MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+  function n(ym){var p=ym.split("-");return (+p[0])*12+(+p[1])-1;}
+  var per=JSON.parse(el.dataset.periodos), cad=+el.dataset.cadeiras, ini=n(el.dataset.inicio),
+      d=new Date(), fim=d.getFullYear()*12+d.getMonth(), total=0;
+  if(fim<=ini) return;
+  per.forEach(function(p,i){
+    var de=Math.max(n(p.mes),ini), ate=Math.min(i+1<per.length?n(per[i+1].mes):fim,fim);
+    if(ate>de) total+=Math.round(p.valor*(ate-de)*cad*100)/100;
+  });
+  document.getElementById("estimativa-total").textContent="R$\u00a0"+(total/1e6).toFixed(1).replace(".",",")+" milhões";
+  document.getElementById("estimativa-ate").textContent=MESES[(fim-1)%12]+" de "+Math.floor((fim-1)/12);
+})();
+</script>
+{% endif %}
 <script>
 /* #5: busca por nome e filtro por partido. Sem JavaScript, o formulário fica oculto e a lista aparece inteira. */
 (function(){
