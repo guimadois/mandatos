@@ -27,14 +27,18 @@ LEGISLATURA = "2025 - 2028"
 LEGISLATURA_ANO_INICIO = 2025
 
 # Subsídio dos vereadores (#21). Só aparece no site quando valor, lei e link oficial estiverem preenchidos.
-# Preencher a partir do texto oficial da lei (e da última lei de revisão anual, se houver). Nunca de notícia.
+# Fonte: texto das leis no Diário Oficial Eletrônico do Município (site da Prefeitura). Nunca de notícia.
+# A lei de revisão informa só o percentual: o valor atualizado é calculado e aparece marcado como cálculo.
+DOM = "https://wwwold.joinville.sc.gov.br/public/portaladm/pdf/jornal/"
 SUBSIDIO = {
-    "valor_mensal": None,       # ex.: 19500.00 (R$, bruto, por vereador)
-    "lei": None,                # ex.: "Lei nº 0.000, de 00 de novembro de 2023"
-    "lei_url": None,            # link para o texto oficial
-    "revisao": None,            # ex.: "Lei nº 0.000/2026 (revisão anual de 3,81%)", se o valor vier de revisão
-    "revisao_url": None,
-    "valor_presidente": None,   # subsídio de quem preside a Mesa Diretora, se a lei fixar valor próprio
+    "valor_lei": 19500.00,
+    "presidente_lei": 26080.98,  # art. 4º: quem preside a Mesa Diretora
+    "lei": "Lei nº 9.503, de 17 de novembro de 2023",
+    "lei_url": DOM + "0423404b5a7eea39ca59e91d2d272e43.pdf#page=3",  # Diário Oficial nº 2340, págs. 3–4
+    "revisoes": [  # revisão geral anual (art. 5º); em março de 2025 não houve lei de revisão do subsídio
+        {"lei": "Lei nº 10.120, de 18 de março de 2026", "pct": 3.81, "desde": "março de 2026",
+         "url": DOM + "1e6e5477837967001495e53a675aefa9.pdf#page=4"},  # Diário Oficial nº 2924, págs. 4–5
+    ],
 }
 
 # Fotos (#22): Dados Abertos do TSE, Eleições 2024, licença Creative Commons Atribuição (CC BY).

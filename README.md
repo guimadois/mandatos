@@ -101,7 +101,7 @@ As fotos vêm dos [Dados Abertos do TSE](https://dadosabertos.tse.jus.br/dataset
 O vereador só ganha foto quando o nome é idêntico ao do TSE (candidatos a vereador de Joinville) ou quando o vínculo foi conferido manualmente e registrado em `TSE_VINCULOS_CONFERIDOS`, em `mandatos/config.py`. Quem não casa aparece com as iniciais. O resultado fica em `dados/fotos.json` e `dados/fotos/`.
 
 ## Subsídio
-O valor só aparece no site depois de preenchido `SUBSIDIO` em `mandatos/config.py`, com o número e o link da lei oficial.
+`SUBSIDIO` em `mandatos/config.py` guarda o valor da lei que fixou o subsídio (Lei nº 9.503/2023) e cada revisão geral anual (hoje, a Lei nº 10.120/2026, com 3,81%), todos com link para o Diário Oficial do Município. A cada nova lei de revisão, acrescente um item em `revisoes`. O site mostra o valor atualizado como "cálculo nosso", porque as leis de revisão informam só o percentual.
 
 ## Publicar
 1. Repositório público no GitHub → **Settings → Pages → Source: GitHub Actions**.

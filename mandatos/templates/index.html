@@ -4,7 +4,7 @@
   <h1>O que cada vereador de Joinville apresentou na Câmara</h1>
   <p>Pedidos de melhoria, perguntas à Prefeitura, projetos de lei e moções de {{ periodo }}, contados a partir dos dados oficiais da Câmara. Cada proposição leva ao documento original.</p>
   {% if subsidio %}
-  <p class="subsidio">Cada vereador recebe um subsídio mensal de <strong class="num">{{ subsidio.valor_mensal|reais }}</strong>, fixado pela <a href="{{ subsidio.lei_url }}" rel="noopener">{{ subsidio.lei }}</a>{% if subsidio.revisao %} e atualizado pela {% if subsidio.revisao_url %}<a href="{{ subsidio.revisao_url }}" rel="noopener">{{ subsidio.revisao }}</a>{% else %}{{ subsidio.revisao }}{% endif %}{% endif %}. Valor bruto, igual para todos{% if subsidio.valor_presidente %}, exceto quem preside a Câmara ({{ subsidio.valor_presidente|reais }}){% endif %}. <a href="como-funciona.html#subsidio">O que o valor inclui</a></p>
+  <p class="subsidio">Cada vereador recebe um subsídio de <strong class="num">{{ subsidio.atual|reais }}</strong> por mês, valor bruto{% if subsidio.presidente_lei %} (quem preside a Câmara recebe mais){% endif %}{% if subsidio.revisoes %} <span class="apoio">(cálculo nosso: {{ subsidio.valor_lei|reais }} da <a href="{{ subsidio.lei_url }}" rel="noopener">{{ subsidio.lei }}</a>{% for r in subsidio.revisoes %} + {{ "%.2f"|format(r.pct)|replace(".", ",") }}% da <a href="{{ r.url }}" rel="noopener">{{ r.lei }}</a>{% endfor %})</span>{% else %}, fixado pela <a href="{{ subsidio.lei_url }}" rel="noopener">{{ subsidio.lei }}</a>{% endif %}. <a href="como-funciona.html#subsidio">Entenda o valor</a></p>
   {% endif %}
 </section>
 

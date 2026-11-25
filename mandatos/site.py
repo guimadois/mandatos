@@ -34,7 +34,18 @@ def reais(v):
     if v is None:
         return ""
     inteiro, cent = f"{float(v):,.2f}".split(".")
-    return f"R$ {inteiro.replace(',', '.')},{cent}"
+    return f"R$\u00a0{inteiro.replace(',', '.')},{cent}"  # espaço inseparável: "R$" não fica sozinho na linha
+
+
+def subsidio(cfg):
+    """Valor da lei corrigido pelas revisões anuais (cada uma sobre o valor anterior, em centavos).
+    Sem valor, lei e link oficial, não mostra nada."""
+    if not all((cfg or {}).get(k) for k in ("valor_lei", "lei", "lei_url")):
+        return None
+    atual = round(float(cfg["valor_lei"]), 2)
+    for r in cfg.get("revisoes", []):
+        atual = round(atual * (1 + r["pct"] / 100), 2)
+    return {**cfg, "revisoes": cfg.get("revisoes", []), "atual": atual}
 
 
 def data_br(iso):
@@ -166,7 +177,7 @@ def montar_contexto(vereadores, proposicoes, meta, fotos=None):
         "csvs_documentos": [f for f in meta.get("fontes", []) if "/documentos-" in f],
         "dados_abertos": config.BASE + "/DadosAbertos",
         "site_url": config.SITE_URL,
-        "subsidio": config.SUBSIDIO if all(config.SUBSIDIO.get(k) for k in ("valor_mensal", "lei", "lei_url")) else None,
+        "subsidio": subsidio(config.SUBSIDIO),
         "tse": {"dataset": config.TSE_DATASET, "licenca": config.TSE_LICENCA, "licenca_url": config.TSE_LICENCA_URL,
                 "ano": config.TSE_ANO, "com_foto": sum(1 for f in fichas if f["foto"]),
                 "manuais": [f["nome"] for f in fichas if f["foto"] and f["foto"]["regra"] == "conferido manualmente"]},

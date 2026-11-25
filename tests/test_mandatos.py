@@ -292,20 +292,30 @@ def test_iniciais_do_avatar():
 
 
 def test_subsidio_so_aparece_com_lei_e_link(local, tmp_path, monkeypatch):
-    """#21: sem valor, lei e link oficial, nada aparece; com eles, aparece com o link."""
+    """#21: sem valor, lei e link oficial, nada aparece; com eles, aparece com os links e o cálculo marcado."""
     destino = tmp_path / "dados"
     _coleta(local, destino)
-    monkeypatch.setattr(config, "SUBSIDIO", {"valor_mensal": 19500, "lei": None, "lei_url": None})
+    monkeypatch.setattr(config, "SUBSIDIO", {"valor_lei": 19500, "lei": None, "lei_url": None})
     saida = site.gerar(saida=tmp_path / "a", pasta_dados=destino)
     assert 'class="subsidio"' not in (saida / "index.html").read_text(encoding="utf-8")
-    monkeypatch.setattr(config, "SUBSIDIO", {"valor_mensal": 19500, "lei": "Lei nº 1, de 2023",
-                                             "lei_url": "https://exemplo.gov.br/lei-1"})
+    monkeypatch.setattr(config, "SUBSIDIO", {
+        "valor_lei": 19500, "presidente_lei": 26080.98, "lei": "Lei nº 1, de 2023", "lei_url": "https://exemplo.gov.br/lei-1",
+        "revisoes": [{"lei": "Lei nº 2, de 2026", "pct": 3.81, "desde": "março de 2026", "url": "https://exemplo.gov.br/lei-2"}]})
     saida = site.gerar(saida=tmp_path / "b", pasta_dados=destino)
     index = (saida / "index.html").read_text(encoding="utf-8")
-    assert "R$ 19.500,00" in index and 'href="https://exemplo.gov.br/lei-1"' in index
-    assert 'id="subsidio"' in (saida / "como-funciona.html").read_text(encoding="utf-8")
+    assert "R$\u00a020.242,95" in index and "cálculo nosso" in index and "3,81%" in index and "3,81%" in (saida / "como-funciona.html").read_text(encoding="utf-8")
+    assert 'href="https://exemplo.gov.br/lei-1"' in index and 'href="https://exemplo.gov.br/lei-2"' in index
+    cf = (saida / "como-funciona.html").read_text(encoding="utf-8")
+    assert 'id="subsidio"' in cf and "R$\u00a026.080,98" in cf and "R$\u00a019.500,00" in cf
+
+
+def test_subsidio_revisoes_em_sequencia():
+    s = site.subsidio({"valor_lei": 1000, "lei": "L", "lei_url": "u",
+                       "revisoes": [{"pct": 10}, {"pct": 10}]})
+    assert s["atual"] == 1210.00
+    assert site.subsidio({"valor_lei": None, "lei": "L", "lei_url": "u"}) is None
 
 
 def test_valor_em_reais():
-    assert site.reais(19500) == "R$ 19.500,00"
-    assert site.reais(29250.5) == "R$ 29.250,50"
+    assert site.reais(19500) == "R$\u00a019.500,00"
+    assert site.reais(29250.5) == "R$\u00a029.250,50"

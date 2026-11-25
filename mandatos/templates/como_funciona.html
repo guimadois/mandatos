@@ -30,8 +30,13 @@
 {% if subsidio %}
 <section class="bloco" id="subsidio">
   <h2>O subsídio dos vereadores</h2>
-  <p>O subsídio é o salário mensal do vereador, fixado em lei antes da eleição e igual para todos. Hoje é de {{ subsidio.valor_mensal|reais }} brutos por mês, segundo a <a href="{{ subsidio.lei_url }}" rel="noopener">{{ subsidio.lei }}</a>{% if subsidio.revisao %} e a {% if subsidio.revisao_url %}<a href="{{ subsidio.revisao_url }}" rel="noopener">{{ subsidio.revisao }}</a>{% else %}{{ subsidio.revisao }}{% endif %}{% endif %}.</p>
-  <p>O valor é bruto: antes dos descontos de imposto de renda e previdência. Não inclui outros gastos da Câmara com o mandato, como assessores e estrutura de gabinete. Mostramos o valor só como informação, sem comparar vereadores.</p>
+  <p>O subsídio é o salário mensal do vereador. Ele é fixado em lei antes da eleição e é o mesmo para todos, exceto quem preside a Câmara.</p>
+  <ul class="lista">
+    <li>A <a href="{{ subsidio.lei_url }}" rel="noopener">{{ subsidio.lei }}</a> fixou {{ subsidio.valor_lei|reais }} por mês para a legislatura {{ legislatura }}{% if subsidio.presidente_lei %} e {{ subsidio.presidente_lei|reais }} para quem preside a Câmara{% endif %}.</li>
+    {% for r in subsidio.revisoes %}<li>A <a href="{{ r.url }}" rel="noopener">{{ r.lei }}</a> concedeu revisão geral de {{ "%.2f"|format(r.pct)|replace(".", ",") }}% a partir de {{ r.desde }}.</li>{% endfor %}
+  </ul>
+  {% if subsidio.revisoes %}<p><strong>{{ subsidio.atual|reais }}</strong> é cálculo nosso: o valor da lei com as revisões aplicadas, arredondado em centavos. As leis de revisão informam o percentual, não o valor final.{% if subsidio.presidente_lei %} O subsídio de quem preside a Câmara recebe as mesmas revisões.{% endif %}</p>{% endif %}
+  <p>O valor é bruto, antes dos descontos de imposto de renda e previdência. Não inclui outros gastos da Câmara com o mandato, como assessores e estrutura de gabinete. Pela lei, o subsídio é devido pelo comparecimento às sessões, e faltas sem justificativa podem ser descontadas. Mostramos o valor só como informação, sem comparar vereadores.</p>
 </section>
 {% endif %}
 
