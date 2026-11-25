@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block titulo %}{{ nome_site }}{% endblock %}</title>
+<meta name="description" content="{% block descricao %}O que cada vereador de Joinville apresenta na Câmara, só com dados oficiais e link para a fonte.{% endblock %}">
+<style>
+/* Layout: coluna única de leitura no celular; fichas em grade no desktop. Fundo branco, uma cor de destaque. */
+:root{
+  --papel:#ffffff; --tinta:#17222c; --suave:#5a6874; --linha:#e2e7eb; --fundo-suave:#f3f6f8;
+  --destaque:#0a5a8c; --destaque-suave:#e6f0f7;
+  --c-melhorias:#2f7d4f; --c-perguntas:#a35d00; --c-leis:#0a5a8c; --c-mocoes:#8a4fa8; --c-requerimentos:#5a6874;
+  --texto:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--texto);font-size:17px;line-height:1.55}
+a{color:var(--destaque);text-underline-offset:3px}
+a:focus-visible{outline:3px solid var(--destaque);outline-offset:2px;border-radius:3px}
+.faixa{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.miolo{max-width:960px;margin:0 auto}
+header.topo{border-bottom:1px solid var(--linha)}
+header.topo .miolo{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding-block:14px}
+.marca{font-weight:800;font-size:1.15rem;color:var(--tinta);text-decoration:none;letter-spacing:-.01em}
+.marca span{color:var(--destaque)}
+nav.menu{display:flex;gap:18px;font-size:.95rem}
+nav.menu a{text-decoration:none;font-weight:600}
+main{padding-block:28px 56px}
+main .miolo{display:flex;flex-direction:column;gap:36px}
+h1,h2,h3{line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:clamp(1.6rem,5vw,2.2rem);letter-spacing:-.02em}
+h2{font-size:1.3rem}
+h3{font-size:1.05rem}
+p{margin:0;max-width:66ch}
+.bloco{display:flex;flex-direction:column;gap:12px}
+.apoio{color:var(--suave);font-size:.93rem}
+.aviso{background:var(--fundo-suave);border-left:4px solid var(--destaque);padding:12px 16px;border-radius:0 8px 8px 0;font-size:.95rem}
+.aviso p{max-width:none}
+.num{font-variant-numeric:tabular-nums}
+.ponto{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+.ponto.melhorias{background:var(--c-melhorias)} .ponto.perguntas{background:var(--c-perguntas)}
+.ponto.leis{background:var(--c-leis)} .ponto.mocoes{background:var(--c-mocoes)} .ponto.requerimentos{background:var(--c-requerimentos)}
+
+/* fichas da página inicial */
+.fichas{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;list-style:none;margin:0;padding:0}
+.ficha{border:1px solid var(--linha);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.ficha h3 a{color:var(--tinta);text-decoration:none}
+.ficha h3 a:hover{color:var(--destaque);text-decoration:underline}
+.contagens{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+.contagens li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.contagens .n{font-weight:700;text-align:right}
+.contagens .zero{color:var(--suave);font-weight:400}
+
+/* glossário */
+.glossario{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:0}
+.glossario div{display:flex;flex-direction:column;gap:4px}
+.glossario dt{font-weight:700;display:flex;align-items:center;gap:8px}
+.glossario dd{margin:0;color:var(--suave);font-size:.93rem}
+
+/* lista de proposições */
+.categoria{display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}
+.categoria h2{display:flex;align-items:center;gap:10px}
+.props{list-style:none;margin:0;padding:0;border-top:1px solid var(--linha)}
+.props li{padding:12px 0;border-bottom:1px solid var(--linha);display:flex;flex-direction:column;gap:2px}
+.props .tit{font-weight:600}
+.props .det{color:var(--suave);font-size:.9rem;display:flex;flex-wrap:wrap;gap:4px 12px}
+.situacao{display:inline-block;background:var(--fundo-suave);border-radius:4px;padding:0 6px;color:var(--tinta)}
+.mais{font-weight:600}
+.resumo-vereador{display:flex;flex-wrap:wrap;gap:8px 16px;list-style:none;margin:0;padding:0}
+.resumo-vereador a{display:flex;align-items:center;gap:8px;border:1px solid var(--linha);border-radius:999px;padding:6px 14px;text-decoration:none;color:var(--tinta);font-size:.93rem}
+.resumo-vereador a:hover{border-color:var(--destaque)}
+.resumo-vereador b{font-variant-numeric:tabular-nums}
+
+table.regra{border-collapse:collapse;width:100%;font-size:.93rem}
+.tabela{overflow-x:auto}
+table.regra th,table.regra td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--linha);vertical-align:top}
+table.regra th{color:var(--suave);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+ul.lista{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;max-width:66ch}
+
+footer.rodape{border-top:1px solid var(--linha);background:var(--fundo-suave)}
+footer.rodape .miolo{padding-block:22px;display:flex;flex-direction:column;gap:6px;font-size:.88rem;color:var(--suave)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="topo faixa">
+  <div class="miolo">
+    <a class="marca" href="{{ raiz }}index.html">{{ marca }} <span>{{ local }}</span></a>
+    <nav class="menu" aria-label="Principal">
+      <a href="{{ raiz }}index.html">Vereadores</a>
+      <a href="{{ raiz }}como-funciona.html">Como funciona</a>
+      <a href="{{ raiz }}sobre.html">Sobre</a>
+    </nav>
+  </div>
+</header>
+<main class="faixa"><div class="miolo">
+{% block conteudo %}{% endblock %}
+</div></main>
+<footer class="rodape faixa">
+  <div class="miolo">
+    <p>Dados oficiais dos <a href="{{ dados_abertos }}">Dados Abertos da Câmara de Vereadores de Joinville</a>, coletados em {{ meta.coletado_em|data_extenso }}.</p>
+    <p>Projeto pessoal de <a href="{{ raiz }}sobre.html">{{ autor }}</a>, sem vínculo com a Câmara ou com partidos. Não dá nota, não faz ranking e não emite opinião.
+    {% if contato_correcao %}Encontrou um erro? <a href="{{ contato_correcao }}">Avise aqui</a>.{% else %}Canal para apontar erros: em preparação.{% endif %}</p>
+  </div>
+</footer>
+</body>
+</html>

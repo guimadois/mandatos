@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}{{ c.nome }} de {{ v.nome }} · {{ nome_site }}{% endblock %}
+{% block conteudo %}
+<section class="bloco">
+  <p class="apoio"><a href="../../index.html">Vereadores</a> › <a href="../{{ v.slug }}.html">{{ v.nome }}</a> › {{ c.nome }}</p>
+  <h1><span class="ponto {{ c.chave }}" aria-hidden="true"></span> {{ c.nome }} de {{ v.nome }}</h1>
+  <p><strong class="num">{{ c.total }}</strong> em {{ periodo }}, da mais recente para a mais antiga. {{ c.explicacao }}</p>
+</section>
+<section class="categoria">
+  <ul class="props">
+    {% for p in c.itens %}{% include "_proposicao.html" %}{% endfor %}
+  </ul>
+</section>
+{% endblock %}

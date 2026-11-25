@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block titulo %}Como funciona · {{ nome_site }}{% endblock %}
+{% block conteudo %}
+<section class="bloco">
+  <h1>Como funciona</h1>
+  <p>O {{ nome_site }} reúne o que os vereadores apresentam na Câmara e mostra em linguagem simples. Tudo vem de dados oficiais e cada proposição leva ao documento original.</p>
+</section>
+
+<section class="bloco" id="fontes">
+  <h2>De onde vêm os dados</h2>
+  <p>Dos <a href="{{ dados_abertos }}">Dados Abertos da Câmara de Vereadores de Joinville</a>, que publica arquivos para consulta livre. Um robô baixa esses arquivos uma vez por dia, confere se vieram completos e só então atualiza o site. Se algo vier estranho, o site continua com a última versão conferida.</p>
+  <ul class="lista">
+    {% if csv_vereadores %}<li>Vereadores: <a href="{{ csv_vereadores }}">{{ csv_vereadores.rsplit('/',1)[-1] }}</a></li>{% endif %}
+    {% for u in csvs_documentos %}<li>Documentos: <a href="{{ u }}">{{ u.rsplit('/',1)[-1] }}</a></li>{% endfor %}
+  </ul>
+  <p class="apoio">Última coleta: {{ meta.coletado_em|data_extenso }}. A Câmara informa que os arquivos foram atualizados em {{ meta.dados_abertos_atualizados_em|data_extenso }}.</p>
+</section>
+
+<section class="bloco" id="contagem">
+  <h2>O que contamos</h2>
+  <ul class="lista">
+    <li>Os {{ fichas|length }} vereadores titulares da legislatura {{ legislatura }}, conforme a lista oficial. A lista não diz quem está licenciado, então pode incluir quem não está em exercício hoje.</li>
+    <li>Proposições de {{ periodo }} em que o vereador aparece como autor ou coautor. Uma proposição com três autores conta para os três.</li>
+    <li>Os partidos aparecem como estão registrados no sistema da Câmara, que guarda o histórico e não indica o partido atual.</li>
+    <li>Ficam de fora documentos que não são proposições de vereador, como respostas da Prefeitura, pareceres e atas.</li>
+  </ul>
+</section>
+
+<section class="bloco" id="categorias">
+  <h2>A regra dos grupos</h2>
+  <p>Por enquanto, cada proposição entra em um grupo só pelo seu tipo oficial. A mesma regra vale para todos os vereadores.</p>
+  <div class="tabela">
+  <table class="regra">
+    <thead><tr><th>Grupo</th><th>Tipos oficiais incluídos</th></tr></thead>
+    <tbody>
+    {% for c in categorias %}
+      <tr><td><span class="ponto {{ c.chave }}" aria-hidden="true"></span> {{ c.nome }}</td><td>{{ c.subtipos|join(", ") }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="apoio">Moções misturam homenagens com apoio, pesar e repúdio. Para separar, precisamos do resumo (ementa) de cada uma, que ainda não está nos dados abertos.</p>
+</section>
+
+<section class="bloco" id="situacao">
+  <h2>O que a situação quer dizer</h2>
+  <p>A situação é a etapa em que o documento está no sistema da Câmara, copiada como a Câmara publica. Ela não diz se um pedido foi atendido pela Prefeitura.</p>
+  <ul class="lista">
+    <li><strong>Pedido não é obra feita.</strong> Uma indicação é uma sugestão à Prefeitura.</li>
+    <li><strong>Projeto de lei não é lei aprovada.</strong> O projeto ainda passa por comissões e votação.</li>
+    <li><strong>"Arquivado"</strong> quer dizer que a tramitação do documento terminou na Câmara. Não quer dizer que foi rejeitado nem que foi atendido.</li>
+  </ul>
+</section>
+
+<section class="bloco" id="falta">
+  <h2>O que ainda não está aqui</h2>
+  <ul class="lista">
+    <li><strong>Resumo de cada proposição (ementa):</strong> não está nos dados abertos. Vamos pedir à Câmara que inclua.</li>
+    <li><strong>Busca por bairro ou rua:</strong> depende da ementa.</li>
+    <li><strong>Presença nas sessões e votos:</strong> a Câmara publica, mas ainda não nos dados abertos.</li>
+  </ul>
+</section>
+
+<section class="bloco" id="principios">
+  <h2>Nossos compromissos</h2>
+  <ul class="lista">
+    <li>Só dados oficiais da Câmara, sempre com link para a fonte.</li>
+    <li>A mesma régua para todos os vereadores e partidos.</li>
+    <li>Sem nota, ranking ou opinião. Os vereadores aparecem em ordem alfabética.</li>
+    <li>Só informações públicas. Nenhum dado pessoal.</li>
+    <li>Erros são corrigidos rápido. {% if contato_correcao %}<a href="{{ contato_correcao }}">Avise aqui</a>.{% else %}O canal para avisar está em preparação.{% endif %}</li>
+  </ul>
+</section>
+{% endblock %}

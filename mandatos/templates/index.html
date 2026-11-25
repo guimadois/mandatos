@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<section class="bloco">
+  <h1>O que cada vereador de Joinville apresentou na Câmara</h1>
+  <p>Pedidos de melhoria, perguntas à Prefeitura, projetos de lei e moções de {{ periodo }}, contados a partir dos dados oficiais da Câmara. Cada proposição leva ao documento original.</p>
+  <p class="apoio">{{ fichas|length }} vereadores titulares da legislatura {{ legislatura }}, em ordem alfabética. Contamos autoria e coautoria. O site não dá nota nem faz ranking.</p>
+</section>
+
+<section class="bloco" aria-labelledby="tit-fichas">
+  <h2 id="tit-fichas">Vereadores</h2>
+  <ul class="fichas">
+  {% for f in fichas %}
+    <li class="ficha">
+      <h3><a href="vereador/{{ f.slug }}.html">{{ f.nome }}</a></h3>
+      {% if f.partidos_registrados %}<span class="apoio">{{ f.partidos_registrados }}</span>{% endif %}
+      <ul class="contagens">
+      {% for c in f.categorias %}
+        <li><span class="ponto {{ c.chave }}" aria-hidden="true"></span><span>{{ c.nome }}</span>
+          {% if c.total %}<a class="n num" href="vereador/{{ f.slug }}.html#{{ c.chave }}" aria-label="{{ c.total }} {{ c.nome|lower }} de {{ f.nome }}">{{ c.total }}</a>{% else %}<span class="n num zero">0</span>{% endif %}</li>
+      {% endfor %}
+      </ul>
+    </li>
+  {% endfor %}
+  </ul>
+</section>
+
+<section class="bloco" aria-labelledby="tit-gloss">
+  <h2 id="tit-gloss">O que é cada coisa</h2>
+  <dl class="glossario">
+  {% for c in categorias %}
+    <div><dt><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }}</dt><dd>{{ c.explicacao }}</dd></div>
+  {% endfor %}
+  </dl>
+  <p class="apoio">Por enquanto o agrupamento usa só o tipo oficial do documento. <a href="como-funciona.html#categorias">Veja a regra</a>.</p>
+</section>
+{% endblock %}

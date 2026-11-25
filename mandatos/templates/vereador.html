@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}{{ v.nome }} · {{ nome_site }}{% endblock %}
+{% block descricao %}O que {{ v.nome }} apresentou na Câmara de Joinville em {{ periodo }}, com link para cada documento oficial.{% endblock %}
+{% block conteudo %}
+<section class="bloco">
+  <p class="apoio"><a href="../index.html">Vereadores</a> › {{ v.nome }}</p>
+  <h1>{{ v.nome }}</h1>
+  {% if v.nome_civil and v.nome_civil != v.nome %}<p class="apoio">Nome civil: {{ v.nome_civil }}</p>{% endif %}
+  {% if v.partidos_registrados %}<p class="apoio">Partidos registrados no sistema da Câmara: {{ v.partidos_registrados }}</p>{% endif %}
+  <p><a href="{{ v.url_origem }}" rel="noopener">Ficha oficial na Câmara</a></p>
+</section>
+
+<section class="bloco">
+  <p><strong class="num">{{ v.total }}</strong> proposições em {{ periodo }}, como autor ou coautor{% if v.coautoria %} ({{ v.coautoria }} em coautoria){% endif %}.</p>
+  <ul class="resumo-vereador">
+  {% for c in v.categorias %}
+    <li><a href="#{{ c.chave }}"><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }} <b>{{ c.total }}</b></a></li>
+  {% endfor %}
+  </ul>
+  <div class="aviso">
+    <p>O resumo de cada proposição (ementa) ainda não está nos dados abertos da Câmara. Toque no documento para ler no site oficial. A situação é a etapa do documento na Câmara: "Arquivado" quer dizer que a tramitação terminou lá e não diz se o pedido foi atendido. <a href="../como-funciona.html#situacao">Entenda</a>.</p>
+  </div>
+</section>
+
+{% for c in v.categorias %}
+<section class="categoria" id="{{ c.chave }}">
+  <h2><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }} <span class="num apoio">{{ c.total }}</span></h2>
+  <p class="apoio">{{ c.explicacao }}</p>
+  {% if c.total %}
+  <ul class="props">
+    {% for p in c.recentes %}{% include "_proposicao.html" %}{% endfor %}
+  </ul>
+  {% if c.total > c.recentes|length %}<a class="mais" href="{{ v.slug }}/{{ c.chave }}.html">Ver todas as {{ c.total }}</a>{% endif %}
+  {% else %}
+  <p>Nenhuma em {{ periodo }}.</p>
+  {% endif %}
+</section>
+{% endfor %}
+{% endblock %}

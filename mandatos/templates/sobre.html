@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block titulo %}Sobre · {{ nome_site }}{% endblock %}
+{% block descricao %}Quem faz o {{ nome_site }}, por que o projeto existe e como ele se mantém independente.{% endblock %}
+{% block conteudo %}
+<section class="bloco">
+  <h1>Sobre o projeto</h1>
+  <p>O {{ nome_site }} existe para que qualquer morador consiga ver, em poucos minutos, o que cada vereador fez no mandato, sempre com o documento oficial a um toque de distância.</p>
+</section>
+
+<section class="bloco" id="por-que">
+  <h2>Por que existe</h2>
+  <p>Os dados da Câmara já são públicos, mas estão espalhados e escritos em linguagem legislativa. Pouca gente sabe a diferença entre indicação, moção e requerimento, e menos gente ainda pesquisa isso no sistema da Câmara.</p>
+  <p>Em 2026, vários vereadores de Joinville se candidataram a deputado, e não havia um lugar simples para o eleitor consultar o histórico de cada um. Este projeto quer ser esse lugar nas próximas eleições.</p>
+</section>
+
+<section class="bloco" id="quem-faz">
+  <h2>Quem faz</h2>
+  <p>{{ autor }}. Projeto pessoal, sem fins lucrativos e sem viés partidário.</p>
+  <ul class="lista">
+    <li><a href="{{ autor_linkedin }}" rel="noopener">LinkedIn</a></li>
+    {% if repositorio %}<li><a href="{{ repositorio }}" rel="noopener">Código aberto no GitHub</a></li>{% endif %}
+  </ul>
+</section>
+
+<section class="bloco" id="independencia">
+  <h2>Independência</h2>
+  <ul class="lista">
+    <li>O autor não tem filiação partidária nem vínculo com vereadores, partidos, a Câmara ou a Prefeitura.</li>
+    <li>O projeto não recebe dinheiro de políticos, partidos ou governos.</li>
+    <li>Todos os vereadores aparecem com a mesma regra, em ordem alfabética, sem nota nem ranking.</li>
+    <li>O site não é oficial. Os dados oficiais estão sempre no site da Câmara, e cada número leva até eles.</li>
+  </ul>
+</section>
+
+<section class="bloco" id="como-e-feito">
+  <h2>Como é feito</h2>
+  <p>Um robô baixa todo dia os arquivos de Dados Abertos da Câmara, confere se vieram completos e atualiza o site. Os detalhes, as regras e o que ainda falta estão em <a href="como-funciona.html">Como funciona</a>.{% if repositorio %} O código é aberto, sob licença MIT.{% endif %}</p>
+  <p class="apoio">A ideia se inspira no manual <em>Como criar o Radar da sua cidade</em>, de Gabriel Damasceno, que criou um projeto parecido em Hortolândia-SP.</p>
+</section>
+
+<section class="bloco" id="erros">
+  <h2>Encontrou um erro?</h2>
+  <p>{% if contato_correcao %}<a href="{{ contato_correcao }}">Avise aqui</a>. Erros são corrigidos o mais rápido possível, e a correção fica registrada.{% else %}O canal para avisar erros está em preparação.{% endif %}</p>
+</section>
+{% endblock %}

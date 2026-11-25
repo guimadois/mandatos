@@ -1,0 +1,61 @@
+name: Atualizar dados e publicar
+
+on:
+  schedule:
+    - cron: "30 7 * * *"   # 04:30 em Joinville (UTC-3), depois da regeração dos CSVs às 03:01
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: atualizar
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements-dev.txt
+
+      - name: Testes
+        run: python -m pytest -q
+
+      # Só os Dados Abertos. Se a coleta vier estranha ou bloqueada, o job falha aqui:
+      # nada é publicado e o site continua com a última versão boa (GitHub avisa por e-mail).
+      - name: Coletar Dados Abertos
+        if: github.event_name != 'push'
+        run: python -m mandatos.coletar
+
+      - name: Guardar dados no repositório
+        if: github.event_name != 'push'
+        run: |
+          git config user.name "radar-joinville-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dados/
+          git diff --cached --quiet || git commit -m "dados: coleta de $(date -u +%Y-%m-%d)"
+          git push
+
+      - name: Gerar site
+        run: python -m mandatos.site
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

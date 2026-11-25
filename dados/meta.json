@@ -1,0 +1,13 @@
+{
+  "coletado_em": "2026-11-25T12:10:24-03:00",
+  "dados_abertos_atualizados_em": "2026-11-25T00:01:46-03:00",
+  "fontes": [
+    "https://camara.joinville.br/DadosAbertos/download/dados-abertos.json",
+    "https://camara.joinville.br/DadosAbertos/download/vereadores.csv",
+    "https://camara.joinville.br/DadosAbertos/download/documentos-2026.csv"
+  ],
+  "legislatura": "2025 - 2028",
+  "total_vereadores": 22,
+  "total_proposicoes": 10340,
+  "requisicoes": 0
+}
