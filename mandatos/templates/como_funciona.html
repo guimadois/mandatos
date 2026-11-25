@@ -27,6 +27,20 @@
   </ul>
 </section>
 
+{% if subsidio %}
+<section class="bloco" id="subsidio">
+  <h2>O subsídio dos vereadores</h2>
+  <p>O subsídio é o salário mensal do vereador, fixado em lei antes da eleição e igual para todos. Hoje é de {{ subsidio.valor_mensal|reais }} brutos por mês, segundo a <a href="{{ subsidio.lei_url }}" rel="noopener">{{ subsidio.lei }}</a>{% if subsidio.revisao %} e a {% if subsidio.revisao_url %}<a href="{{ subsidio.revisao_url }}" rel="noopener">{{ subsidio.revisao }}</a>{% else %}{{ subsidio.revisao }}{% endif %}{% endif %}.</p>
+  <p>O valor é bruto: antes dos descontos de imposto de renda e previdência. Não inclui outros gastos da Câmara com o mandato, como assessores e estrutura de gabinete. Mostramos o valor só como informação, sem comparar vereadores.</p>
+</section>
+{% endif %}
+
+<section class="bloco" id="fotos">
+  <h2>De onde vêm as fotos</h2>
+  <p>As fotos são as que cada vereador entregou à Justiça Eleitoral ao registrar a candidatura nas Eleições {{ tse.ano }}. Elas estão nos <a href="{{ tse.dataset }}" rel="noopener">Dados Abertos do TSE</a>, sob licença <a href="{{ tse.licenca_url }}" rel="noopener">{{ tse.licenca }}</a>. Não usamos fotos do site da Câmara.</p>
+  <p>Ligamos o vereador à candidatura só quando o nome é idêntico ao do TSE, entre os candidatos a vereador de Joinville. Quando o nome é diferente nas duas fontes (por exemplo, "Neto Petters" na Câmara e "Neto Petters do Novo" na urna), o vínculo foi conferido manualmente, um a um, por nome completo e partido{% if tse.manuais %}: {{ tse.manuais|join(", ") }}{% endif %}. Quem não tem correspondência aparece com as iniciais do nome, sem foto.{% if tse.com_foto < fichas|length %} Hoje, {{ tse.com_foto }} de {{ fichas|length }} vereadores têm foto.{% endif %}</p>
+</section>
+
 <section class="bloco" id="categorias">
   <h2>A regra dos grupos</h2>
   <p>Por enquanto, cada proposição entra em um grupo só pelo seu tipo oficial. A mesma regra vale para todos os vereadores.</p>
@@ -68,7 +82,7 @@
     <li>Só dados oficiais da Câmara, sempre com link para a fonte.</li>
     <li>A mesma régua para todos os vereadores e partidos.</li>
     <li>Sem nota, ranking ou opinião. Os vereadores aparecem em ordem alfabética.</li>
-    <li>Só informações públicas. Nenhum dado pessoal.</li>
+    <li>Só informações públicas. Nenhum dado pessoal além do nome, do partido e da foto de candidatura, que a Justiça Eleitoral já publica.</li>
     <li>Erros são corrigidos rápido. {% if contato_correcao %}<a href="{{ contato_correcao }}">Avise aqui</a>.{% else %}O canal para avisar está em preparação.{% endif %}</li>
   </ul>
 </section>

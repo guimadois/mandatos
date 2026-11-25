@@ -1,0 +1,6 @@
+{# Foto do TSE ou, sem foto, as iniciais em um círculo neutro. Espera: pessoa, classe_avatar, raiz #}
+{% if pessoa.foto %}
+<img class="avatar {{ classe_avatar }}" src="{{ raiz }}{{ pessoa.foto.arquivo }}" alt="Foto de {{ pessoa.nome }}" loading="lazy" decoding="async" width="120" height="150">
+{% else %}
+<span class="avatar iniciais {{ classe_avatar }}" aria-hidden="true">{{ pessoa.iniciais }}</span>
+{% endif %}

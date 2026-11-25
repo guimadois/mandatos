@@ -218,3 +218,94 @@ def test_numeros_com_separador_de_milhar():
     assert site.milhar(23274) == "23.274"
     assert site.milhar(999) == "999"
     assert site.milhar("1000") == "1.000"
+
+
+# ---------------------------------------------------------------- fotos do TSE (#22)
+def _tse(tmp_path, linhas, fotos):
+    """Zips no formato dos Dados Abertos do TSE: CSV latin-1 com ';' e fotos F<UF><SQ>_div.jpg."""
+    import io
+    import zipfile
+    from PIL import Image
+    cols = ["SQ_CANDIDATO", "NM_CANDIDATO", "NM_URNA_CANDIDATO", "NM_UE", "DS_CARGO"]
+    csv_txt = ";".join(f'"{c}"' for c in cols) + "\n" + "".join(
+        ";".join(f'"{v}"' for v in l) + "\n" for l in linhas)
+    consulta = tmp_path / "consulta.zip"
+    with zipfile.ZipFile(consulta, "w") as z:
+        z.writestr(f"consulta_cand_{config.TSE_ANO}_{config.TSE_UF}.csv", csv_txt.encode("latin-1"))
+    arq_fotos = tmp_path / "fotos.zip"
+    with zipfile.ZipFile(arq_fotos, "w") as z:
+        for sq in fotos:
+            b = io.BytesIO()
+            Image.new("RGB", (300, 400), "#888").save(b, "JPEG")
+            ext = "jpeg" if sq == "1" else "jpg"  # o TSE usa as duas extensões
+            z.writestr(f"F{config.TSE_UF}{sq}_div.{ext}", b.getvalue())
+    return consulta, arq_fotos
+
+
+def test_fotos_so_por_nome_identico(local, tmp_path):
+    from mandatos import fotos
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    consulta, arq = _tse(tmp_path, [
+        ["1", "LUCAS DOS SANTOS ARAÚJO", "INSTRUTOR LUCAS", "JOINVILLE", "VEREADOR"],   # nome de urna idêntico
+        ["2", "ADILSON LUIZ GIRARDI", "ADILSON GIRARDY", "JOINVILLE", "VEREADOR"],       # parecido: não associa
+        ["3", "X", "ALISSON", "JOINVILLE", "VEREADOR"],                                   # ambíguo: não associa
+        ["4", "Y", "ALISSON", "JOINVILLE", "VEREADOR"],
+        ["5", "Z", "DIEGO MACHADO", "BLUMENAU", "VEREADOR"],                              # outra cidade
+    ], ["1", "2", "3", "4", "5"])
+    assert fotos.main(consulta, arq, pasta=destino) == 0
+    regs = json.loads((destino / "fotos.json").read_text(encoding="utf-8"))
+    assert [r["sq_candidato"] for r in regs] == ["1"]
+    r = regs[0]
+    assert r["regra"] == "nome de urna" and r["url_origem"] == config.TSE_FOTOS_URL and r["coletado_em"]
+    from PIL import Image
+    assert Image.open(destino / r["arquivo"]).width == fotos.LARGURA
+
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino)
+    assert (saida / r["arquivo"]).exists()
+    perfil = (saida / "vereador" / "instrutor-lucas-213714.html").read_text(encoding="utf-8")
+    assert 'alt="Foto de Instrutor Lucas"' in perfil and config.TSE_LICENCA in perfil
+    index = (saida / "index.html").read_text(encoding="utf-8")
+    assert f'src="{r["arquivo"]}"' in index
+    assert '<span class="avatar iniciais p" aria-hidden="true">AG</span>' in index  # Adilson Girardi sem foto
+
+
+def test_fotos_vinculo_conferido_manualmente(local, tmp_path, monkeypatch):
+    from mandatos import fotos
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    v = next(x for x in dados.carregar(destino)[0] if x["nome"] == "Adilson Girardi")
+    monkeypatch.setattr(config, "TSE_VINCULOS_CONFERIDOS", {v["id_oficial"]: "2"})
+    consulta, arq = _tse(tmp_path, [["2", "ADILSON LUIZ GIRARDI", "ADILSON GIRARDY", "JOINVILLE", "VEREADOR"]], ["2"])
+    fotos.main(consulta, arq, pasta=destino)
+    regs = json.loads((destino / "fotos.json").read_text(encoding="utf-8"))
+    assert [(r["id_oficial"], r["regra"]) for r in regs] == [(v["id_oficial"], "conferido manualmente")]
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino)
+    assert "Adilson Girardi" in (saida / "como-funciona.html").read_text(encoding="utf-8").split('id="fotos"')[1]
+
+
+def test_iniciais_do_avatar():
+    assert site.iniciais("Adilson Girardi") == "AG"
+    assert site.iniciais("Pelé") == "P"
+    assert site.iniciais("Dr. Cassiano Ucker") == "DU"
+    assert site.iniciais("") == "?"
+
+
+def test_subsidio_so_aparece_com_lei_e_link(local, tmp_path, monkeypatch):
+    """#21: sem valor, lei e link oficial, nada aparece; com eles, aparece com o link."""
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    monkeypatch.setattr(config, "SUBSIDIO", {"valor_mensal": 19500, "lei": None, "lei_url": None})
+    saida = site.gerar(saida=tmp_path / "a", pasta_dados=destino)
+    assert 'class="subsidio"' not in (saida / "index.html").read_text(encoding="utf-8")
+    monkeypatch.setattr(config, "SUBSIDIO", {"valor_mensal": 19500, "lei": "Lei nº 1, de 2023",
+                                             "lei_url": "https://exemplo.gov.br/lei-1"})
+    saida = site.gerar(saida=tmp_path / "b", pasta_dados=destino)
+    index = (saida / "index.html").read_text(encoding="utf-8")
+    assert "R$ 19.500,00" in index and 'href="https://exemplo.gov.br/lei-1"' in index
+    assert 'id="subsidio"' in (saida / "como-funciona.html").read_text(encoding="utf-8")
+
+
+def test_valor_em_reais():
+    assert site.reais(19500) == "R$ 19.500,00"
+    assert site.reais(29250.5) == "R$ 29.250,50"

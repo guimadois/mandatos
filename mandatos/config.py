@@ -26,6 +26,35 @@ TZ = ZoneInfo("America/Sao_Paulo")
 LEGISLATURA = "2025 - 2028"
 LEGISLATURA_ANO_INICIO = 2025
 
+# Subsídio dos vereadores (#21). Só aparece no site quando valor, lei e link oficial estiverem preenchidos.
+# Preencher a partir do texto oficial da lei (e da última lei de revisão anual, se houver). Nunca de notícia.
+SUBSIDIO = {
+    "valor_mensal": None,       # ex.: 19500.00 (R$, bruto, por vereador)
+    "lei": None,                # ex.: "Lei nº 0.000, de 00 de novembro de 2023"
+    "lei_url": None,            # link para o texto oficial
+    "revisao": None,            # ex.: "Lei nº 0.000/2026 (revisão anual de 3,81%)", se o valor vier de revisão
+    "revisao_url": None,
+    "valor_presidente": None,   # subsídio de quem preside a Mesa Diretora, se a lei fixar valor próprio
+}
+
+# Fotos (#22): Dados Abertos do TSE, Eleições 2024, licença Creative Commons Atribuição (CC BY).
+# O site da Câmara não serve: o robots.txt proíbe e não há licença de reuso explícita.
+TSE_ANO = 2024
+TSE_UF = "SC"
+TSE_MUNICIPIO = "JOINVILLE"
+TSE_DATASET = "https://dadosabertos.tse.jus.br/dataset/candidatos-2024"
+TSE_CONSULTA_URL = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2024.zip"
+TSE_FOTOS_URL = "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2024/fotos/foto_cand2024_SC_div.zip"
+# Vínculos conferidos manualmente pelo autor (id_oficial da Câmara -> SQ_CANDIDATO do TSE), para quem
+# o nome não é idêntico nas duas fontes. Cada um foi conferido por nome, partido e candidatura em Joinville.
+TSE_VINCULOS_CONFERIDOS = {
+    "202219": "240002114189",  # Dr. Cassiano Ucker = DR CASSIANO (Cassiano Gonçalves Ucker, PL)
+    "202226": "240001901933",  # Neto Petters = NETO PETTERS DO NOVO (Italmar José Petters Neto, NOVO)
+    "213717": "240001901934",  # Vanessa Venzke Falk = VANESSA FALK (Vanessa Cristina Venzke Falk, NOVO)
+}
+TSE_LICENCA = "Creative Commons Atribuição"  # como o portal do TSE informa, sem versão
+TSE_LICENCA_URL = "http://www.opendefinition.org/licenses/cc-by"  # link usado pelo próprio portal
+
 # Colunas que o CSV oficial precisa ter. Se a Câmara mudar o formato, a coleta para e o site não é republicado.
 COLUNAS_DOCUMENTOS = ["Título", "Tipo", "Subtipo", "Número", "Ano", "Data", "Situação",
                       "Protocolo", "Link no site"]

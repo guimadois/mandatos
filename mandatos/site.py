@@ -29,6 +29,14 @@ def milhar(n):
         return n
 
 
+def reais(v):
+    """Valor em reais no padrão brasileiro: 19500 -> "R$ 19.500,00"."""
+    if v is None:
+        return ""
+    inteiro, cent = f"{float(v):,.2f}".split(".")
+    return f"R$ {inteiro.replace(',', '.')},{cent}"
+
+
 def data_br(iso):
     if not iso:
         return ""
@@ -96,7 +104,16 @@ def nome_pagina(chave, n):
     return f"{chave}.html" if n == 1 else f"{chave}-p{n}.html"
 
 
-def montar_contexto(vereadores, proposicoes, meta):
+def iniciais(nome):
+    """Avatar neutro de quem não tem foto: primeira e última inicial do nome parlamentar."""
+    partes = [p for p in (nome or "").split() if p[:1].isalpha()]
+    if not partes:
+        return "?"
+    return (partes[0][0] + (partes[-1][0] if len(partes) > 1 else "")).upper()
+
+
+def montar_contexto(vereadores, proposicoes, meta, fotos=None):
+    fotos = fotos or {}
     por_vereador = {v["id_oficial"]: [] for v in vereadores}
     for p in sorted(proposicoes.values(), key=lambda r: (r["data"], int(r["numero"] or 0), int(r["id_oficial"])), reverse=True):
         for a in p["autores"]:
@@ -112,7 +129,8 @@ def montar_contexto(vereadores, proposicoes, meta):
             cats.append({**c, "total": cont.get(c["chave"], 0), "itens": itens,
                          "recentes": itens[:RECENTES_POR_CATEGORIA]})
         fichas.append({**v, "total": len(props), "categorias": cats, "composicao": composicao(cats),
-                       "coautoria": sum(1 for p in props if len(p["autores"]) > 1)})
+                       "coautoria": sum(1 for p in props if len(p["autores"]) > 1),
+                       "foto": fotos.get(v["id_oficial"]), "iniciais": iniciais(v["nome"])})
     anos = sorted({p["ano"] for p in proposicoes.values() if p["ano"]})
     cronologica = sorted(proposicoes.values(), key=lambda r: (r["data"], int(r["numero"] or 0), int(r["id_oficial"])),
                          reverse=True)
@@ -148,6 +166,10 @@ def montar_contexto(vereadores, proposicoes, meta):
         "csvs_documentos": [f for f in meta.get("fontes", []) if "/documentos-" in f],
         "dados_abertos": config.BASE + "/DadosAbertos",
         "site_url": config.SITE_URL,
+        "subsidio": config.SUBSIDIO if all(config.SUBSIDIO.get(k) for k in ("valor_mensal", "lei", "lei_url")) else None,
+        "tse": {"dataset": config.TSE_DATASET, "licenca": config.TSE_LICENCA, "licenca_url": config.TSE_LICENCA_URL,
+                "ano": config.TSE_ANO, "com_foto": sum(1 for f in fichas if f["foto"]),
+                "manuais": [f["nome"] for f in fichas if f["foto"] and f["foto"]["regra"] == "conferido manualmente"]},
     }
 
 
@@ -159,12 +181,18 @@ def gerar(saida=SAIDA, pasta_dados=dados.PASTA_DADOS):
                       autoescape=select_autoescape(["html"]), trim_blocks=True, lstrip_blocks=True)
     env.filters["data_br"] = data_br
     env.filters["milhar"] = milhar
+    env.filters["reais"] = reais
     env.filters["data_extenso"] = data_extenso
-    ctx = montar_contexto(vereadores, proposicoes, meta)
+    fotos = dados.carregar_fotos(pasta_dados)
+    ctx = montar_contexto(vereadores, proposicoes, meta, fotos)
 
     if saida.exists():
         shutil.rmtree(saida)
     (saida / "vereador").mkdir(parents=True)
+    if fotos:
+        (saida / "fotos").mkdir()
+        for r in fotos.values():
+            shutil.copy(pasta_dados / r["arquivo"], saida / r["arquivo"])
 
     def escreve(rel, template, raiz, **extra):
         destino = saida / rel

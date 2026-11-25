@@ -92,6 +92,17 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
    ```
 3. O push dispara o workflow, que testa, gera e publica o site.
 
+## Fotos dos vereadores (uma vez por eleição)
+As fotos vêm dos [Dados Abertos do TSE](https://dadosabertos.tse.jus.br/dataset/candidatos-2024) (Eleições 2024, licença Creative Commons Atribuição), não do site da Câmara. Baixe para `cache_local/tse/` o [`consulta_cand_2024.zip`](https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2024.zip) e o [`foto_cand2024_SC_div.zip`](https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2024/fotos/foto_cand2024_SC_div.zip) (~550 MB) e rode:
+```bash
+.venv/bin/python -m mandatos.fotos --consulta cache_local/tse/consulta_cand_2024.zip \
+                                   --fotos cache_local/tse/foto_cand2024_SC_div.zip
+```
+O vereador só ganha foto quando o nome é idêntico ao do TSE (candidatos a vereador de Joinville) ou quando o vínculo foi conferido manualmente e registrado em `TSE_VINCULOS_CONFERIDOS`, em `mandatos/config.py`. Quem não casa aparece com as iniciais. O resultado fica em `dados/fotos.json` e `dados/fotos/`.
+
+## Subsídio
+O valor só aparece no site depois de preenchido `SUBSIDIO` em `mandatos/config.py`, com o número e o link da lei oficial.
+
 ## Publicar
 1. Repositório público no GitHub → **Settings → Pages → Source: GitHub Actions**.
 2. O workflow [`atualizar.yml`](.github/workflows/atualizar.yml) testa, coleta, valida, grava `dados/` e publica. Se falhar, o GitHub avisa por e-mail.
@@ -104,10 +115,11 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 | `mandatos/fonte.py` | Cliente HTTP educado; modo local sem rede |
 | `mandatos/dados.py` | CSV → registros, validação, gravação |
 | `mandatos/coletar.py` | Coleta diária (CLI) |
+| `mandatos/fotos.py` | Fotos dos vereadores a partir dos Dados Abertos do TSE (CLI, manual) |
 | `mandatos/site.py`, `mandatos/templates/` | Gerador do site estático |
 | `dados/` | Dados publicados (JSON, um registro por linha) |
 | `tests/` | Testes com linhas reais dos CSVs oficiais |
 | `poc/` | Prova de conceito: relatório, amostra e coletor |
 
 ## Créditos e licença
-Inspirado no manual *Como criar o Radar da sua cidade*, de Gabriel Damasceno (Hortolândia-SP). Código sob licença [MIT](LICENSE). A imagem de pré-visualização usa a fonte Noto Sans (SIL Open Font License 1.1, em `mandatos/fontes/`). Os dados são da Câmara de Vereadores de Joinville.
+Inspirado no manual *Como criar o Radar da sua cidade*, de Gabriel Damasceno (Hortolândia-SP). Código sob licença [MIT](LICENSE). A imagem de pré-visualização usa a fonte Noto Sans (SIL Open Font License 1.1, em `mandatos/fontes/`). Os dados são da Câmara de Vereadores de Joinville. As fotos são dos Dados Abertos do TSE (Eleições 2024, Creative Commons Atribuição).

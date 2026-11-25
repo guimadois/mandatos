@@ -3,6 +3,9 @@
 <section class="bloco">
   <h1>O que cada vereador de Joinville apresentou na Câmara</h1>
   <p>Pedidos de melhoria, perguntas à Prefeitura, projetos de lei e moções de {{ periodo }}, contados a partir dos dados oficiais da Câmara. Cada proposição leva ao documento original.</p>
+  {% if subsidio %}
+  <p class="subsidio">Cada vereador recebe um subsídio mensal de <strong class="num">{{ subsidio.valor_mensal|reais }}</strong>, fixado pela <a href="{{ subsidio.lei_url }}" rel="noopener">{{ subsidio.lei }}</a>{% if subsidio.revisao %} e atualizado pela {% if subsidio.revisao_url %}<a href="{{ subsidio.revisao_url }}" rel="noopener">{{ subsidio.revisao }}</a>{% else %}{{ subsidio.revisao }}{% endif %}{% endif %}. Valor bruto, igual para todos{% if subsidio.valor_presidente %}, exceto quem preside a Câmara ({{ subsidio.valor_presidente|reais }}){% endif %}. <a href="como-funciona.html#subsidio">O que o valor inclui</a></p>
+  {% endif %}
 </section>
 
 <section class="bloco cidade" aria-labelledby="tit-cidade">
@@ -32,7 +35,7 @@
 
 <section class="bloco" aria-labelledby="tit-fichas">
   <h2 id="tit-fichas">Vereadores</h2>
-  <p class="apoio">{{ fichas|length }} vereadores titulares da legislatura {{ legislatura }}, em ordem alfabética. Nas fichas contamos autoria e coautoria. O site não dá nota nem faz ranking.</p>
+  <p class="apoio">{{ fichas|length }} vereadores titulares da legislatura {{ legislatura }}, em ordem alfabética. Nas fichas contamos autoria e coautoria. O site não dá nota nem faz ranking.{% if tse.com_foto %} Fotos: <a href="{{ tse.dataset }}" rel="noopener">TSE, Eleições {{ tse.ano }}</a> (<a href="{{ tse.licenca_url }}" rel="noopener">{{ tse.licenca }}</a>).{% endif %}</p>
   <form class="filtros" role="search" aria-label="Encontrar vereador" hidden>
     <div><label for="busca-nome">Nome</label>
       <input id="busca-nome" type="search" placeholder="Digite um nome" autocomplete="off"></div>
@@ -43,8 +46,13 @@
   <ul class="fichas" id="fichas">
   {% for f in fichas %}
     <li class="ficha" data-busca="{{ f.nome }} {{ f.nome_civil or '' }}" data-partidos="|{{ (f.partidos_registrados or '').replace(', ', '|') }}|">
-      <h3><a href="vereador/{{ f.slug }}.html">{{ f.nome }}</a></h3>
-      {% if f.partidos_registrados %}<span class="apoio">{{ f.partidos_registrados }}</span>{% endif %}
+      <div class="ficha-topo">
+        {% set pessoa = f %}{% set classe_avatar = "p" %}{% include "_avatar.html" %}
+        <div>
+          <h3><a href="vereador/{{ f.slug }}.html">{{ f.nome }}</a></h3>
+          {% if f.partidos_registrados %}<span class="apoio">{{ f.partidos_registrados }}</span>{% endif %}
+        </div>
+      </div>
       {% set comp = f.composicao %}{% include "_barra.html" %}
       <ul class="contagens">
       {% for c in f.categorias %}

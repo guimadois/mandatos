@@ -4,10 +4,17 @@
 {% block conteudo %}
 <section class="bloco">
   <p class="apoio"><a href="../index.html">Vereadores</a> › {{ v.nome }}</p>
-  <h1>{{ v.nome }}</h1>
-  {% if v.nome_civil and v.nome_civil != v.nome %}<p class="apoio">Nome civil: {{ v.nome_civil }}</p>{% endif %}
-  {% if v.partidos_registrados %}<p class="apoio">Partidos registrados no sistema da Câmara: {{ v.partidos_registrados }}</p>{% endif %}
-  <p><a href="{{ v.url_origem }}" rel="noopener">Ficha oficial na Câmara</a></p>
+  <div class="perfil">
+    {% set pessoa = v %}{% set classe_avatar = "g" %}{% include "_avatar.html" %}
+    <div class="perfil-dados">
+      <h1>{{ v.nome }}</h1>
+      {% if v.nome_civil and v.nome_civil != v.nome %}<p class="apoio">Nome civil: {{ v.nome_civil }}</p>{% endif %}
+      {% if v.partidos_registrados %}<p class="apoio">Partidos registrados no sistema da Câmara: {{ v.partidos_registrados }}</p>{% endif %}
+      {% if v.legislaturas %}<p class="apoio">Legislaturas: {{ v.legislaturas.replace(" - ", "–").replace(" | ", " · ") }}</p>{% endif %}
+      <p><a href="{{ v.url_origem }}" rel="noopener">Ficha oficial na Câmara</a></p>
+    </div>
+  </div>
+  {% if v.foto %}<p class="apoio credito">Foto: candidatura de {{ v.foto.nome_urna_tse }} nas Eleições {{ tse.ano }}, <a href="{{ tse.dataset }}" rel="noopener">Dados Abertos do TSE</a> (<a href="{{ tse.licenca_url }}" rel="noopener">{{ tse.licenca }}</a>).</p>{% endif %}
 </section>
 
 <section class="bloco">

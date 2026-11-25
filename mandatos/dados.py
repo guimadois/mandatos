@@ -179,3 +179,11 @@ def carregar(pasta):
     vereadores = ler("vereadores.json", [])
     proposicoes = {r["id_oficial"]: r for r in ler("proposicoes.json", [])}
     return vereadores, proposicoes, ler("meta.json", {})
+
+
+def carregar_fotos(pasta):
+    """id_oficial -> registro da foto (dados/fotos.json, gerado por mandatos.fotos). Só fotos cujo arquivo existe."""
+    p = pasta / "fotos.json"
+    if not p.exists():
+        return {}
+    return {r["id_oficial"]: r for r in json.loads(p.read_text(encoding="utf-8")) if (pasta / r["arquivo"]).exists()}
