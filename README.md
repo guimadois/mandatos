@@ -79,6 +79,19 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/python -m pytest -q                                         # testes, sem rede
 ```
 
+## Atualização manual (enquanto a coleta automática estiver bloqueada)
+1. No navegador, abra https://camara.joinville.br/DadosAbertos e baixe para a pasta `cache_local/`, **com estes nomes exatos**:
+   - `dados-abertos.json`: o índice; abra o link do índice e use "Salvar como"
+   - `vereadores.csv`
+   - `documentos-2025.csv` e `documentos-2026.csv`
+2. Rode:
+   ```bash
+   .venv/bin/python -m mandatos.coletar --local cache_local   # valida; o "coletado em" é a hora do download
+   .venv/bin/python -m mandatos.site                         # opcional: conferir em localhost antes de publicar
+   git add dados/ && git commit -m "dados: atualização manual de AAAA-MM-DD" && git push
+   ```
+3. O push dispara o workflow, que testa, gera e publica o site.
+
 ## Publicar
 1. Repositório público no GitHub → **Settings → Pages → Source: GitHub Actions**.
 2. O workflow [`atualizar.yml`](.github/workflows/atualizar.yml) testa, coleta, valida, grava `dados/` e publica. Se falhar, o GitHub avisa por e-mail.

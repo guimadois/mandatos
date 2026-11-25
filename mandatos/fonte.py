@@ -81,6 +81,12 @@ class ClienteLocal:
         import json
         return json.loads((self.pasta / "dados-abertos.json").read_text(encoding="utf-8"))
 
+    def momento_coleta(self, tz):
+        """Horário do download manual = data de modificação mais recente dos arquivos baixados."""
+        from datetime import datetime
+        arquivos = [f for f in self.pasta.iterdir() if f.suffix in (".csv", ".json")]
+        return datetime.fromtimestamp(max(f.stat().st_mtime for f in arquivos), tz).isoformat(timespec="seconds")
+
     def csv(self, url, colunas):
         arq = self.pasta / url.rsplit("/", 1)[-1]
         if not arq.exists():

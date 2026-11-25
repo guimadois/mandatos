@@ -12,7 +12,10 @@ from .fonte import Bloqueio, Cliente, ClienteLocal, FalhaColeta
 
 def main(pasta=dados.PASTA_DADOS, cliente=None, anos=None):
     cli = cliente or Cliente()
-    agora = datetime.now(config.TZ).isoformat(timespec="seconds")
+    if hasattr(cli, "momento_coleta"):  # download manual: vale a hora em que os arquivos foram baixados
+        agora = cli.momento_coleta(config.TZ)
+    else:
+        agora = datetime.now(config.TZ).isoformat(timespec="seconds")
     try:
         indice = cli.indice()
         arquivos = indice.get("arquivos") or []
@@ -46,6 +49,7 @@ def main(pasta=dados.PASTA_DADOS, cliente=None, anos=None):
         "total_vereadores": len(vereadores),
         "total_proposicoes": len(proposicoes),
         "requisicoes": cli.requisicoes,
+        "modo": "manual" if hasattr(cli, "momento_coleta") else "automatico",
     }
     dados.salvar(pasta, vereadores, proposicoes, meta)
     print(f"ok: {len(vereadores)} vereadores, {len(proposicoes)} proposições, {cli.requisicoes} requisições")
