@@ -2,6 +2,7 @@
 campo ausente fica None; todo registro guarda a URL oficial e quando foi coletado."""
 import json
 import re
+import unicodedata
 from pathlib import Path
 
 from . import config
@@ -16,6 +17,12 @@ class DadosInvalidos(Exception):
 def _limpa(v):
     v = (v or "").strip()
     return v or None
+
+
+def chave_alfabetica(nome):
+    """Ordem alfabética do português: ignora acentos e maiúsculas (Érico fica no E, não depois do Z)."""
+    sem_acento = "".join(c for c in unicodedata.normalize("NFKD", nome or "") if not unicodedata.combining(c))
+    return sem_acento.casefold()
 
 
 def id_da_url(url):
@@ -44,7 +51,7 @@ def montar_vereadores(linhas):
             "legislaturas": _limpa(l.get("Legislaturas")),
             "url_origem": url,
         })
-    out.sort(key=lambda v: (v["nome"] or "").casefold())
+    out.sort(key=lambda v: chave_alfabetica(v["nome"]))
     return out
 
 

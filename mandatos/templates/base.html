@@ -79,6 +79,10 @@ table.regra th,table.regra td{text-align:left;padding:8px 10px;border-bottom:1px
 table.regra th{color:var(--suave);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
 ul.lista{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;max-width:66ch}
 
+.paginacao{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:8px;font-weight:600}
+.conferido{background:var(--fundo-suave);border-bottom:1px solid var(--linha);font-size:.85rem;color:var(--suave)}
+.conferido .miolo{padding-block:6px}
+.conferido.velho{background:#fff6e5;color:#7a4a00}
 footer.rodape{border-top:1px solid var(--linha);background:var(--fundo-suave)}
 footer.rodape .miolo{padding-block:22px;display:flex;flex-direction:column;gap:6px;font-size:.88rem;color:var(--suave)}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
@@ -95,6 +99,9 @@ footer.rodape .miolo{padding-block:22px;display:flex;flex-direction:column;gap:6
     </nav>
   </div>
 </header>
+<div class="conferido faixa" id="conferido">
+  <div class="miolo">Dados conferidos em <time datetime="{{ meta.coletado_em }}">{{ meta.coletado_em|data_extenso }}</time><span id="conferido-ha"></span> · {% if meta.modo == "manual" %}atualização manual{% else %}atualização automática{% endif %}<span id="conferido-aviso"></span></div>
+</div>
 <main class="faixa"><div class="miolo">
 {% block conteudo %}{% endblock %}
 </div></main>
@@ -105,5 +112,17 @@ footer.rodape .miolo{padding-block:22px;display:flex;flex-direction:column;gap:6
     {% if contato_correcao %}Encontrou um erro? <a href="{{ contato_correcao }}">Avise aqui</a>.{% else %}Canal para apontar erros: em preparação.{% endif %}</p>
   </div>
 </footer>
+<script>
+/* "há X" calculado no navegador: o site é estático e pode ser lido dias depois de gerado (#8) */
+(function(){
+  var t=document.querySelector("#conferido time"); if(!t) return;
+  var ms=Date.now()-new Date(t.getAttribute("datetime")).getTime(); if(!(ms>=0)) return;
+  var h=Math.floor(ms/36e5), d=Math.floor(h/24);
+  var txt=d>=1?(d===1?"1 dia":d+" dias"):(h>=1?(h===1?"1 hora":h+" horas"):"menos de 1 hora");
+  document.getElementById("conferido-ha").textContent=" (há "+txt+")";
+  if(d>7){document.getElementById("conferido").classList.add("velho");
+    document.getElementById("conferido-aviso").textContent=" · os dados podem estar desatualizados";}
+})();
+</script>
 </body>
 </html>

@@ -126,3 +126,29 @@ def test_nome_repetido_nao_e_associado():
     m = dados.mapa_nome_para_id([{"nome": "X", "id_oficial": "1"}, {"nome": "X", "id_oficial": "2"},
                                  {"nome": "Y", "id_oficial": "3"}])
     assert m == {"Y": "3"}
+
+
+def test_vereadores_em_ordem_alfabetica_ignorando_acentos(local, tmp_path):
+    """#23: sem ranking, só ordem alfabética. Acentos não empurram nomes para o fim."""
+    import re
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino)
+    nomes = re.findall(r'<h3><a href="vereador/[^"]+">([^<]+)</a>', (saida / "index.html").read_text(encoding="utf-8"))
+    assert len(nomes) == 22
+    assert nomes == sorted(nomes, key=dados.chave_alfabetica)
+    assert nomes.index("Érico Vinicius") < nomes.index("Franciel Iurko")
+    assert nomes.index("Tânia Larson") < nomes.index("Tiago Ronchi")
+
+
+def test_listas_longas_paginadas(local, tmp_path, monkeypatch):
+    """#6: listas viram páginas estáticas com navegação."""
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    monkeypatch.setattr(site, "POR_PAGINA", 1)
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino)
+    pasta = saida / "vereador" / "instrutor-lucas-213714"
+    paginas = {p.name for p in pasta.glob("melhorias*.html")}
+    assert "melhorias.html" in paginas and "melhorias-p2.html" in paginas
+    p1 = (pasta / "melhorias.html").read_text(encoding="utf-8")
+    assert 'rel="next"' in p1 and "melhorias-p2.html" in p1
