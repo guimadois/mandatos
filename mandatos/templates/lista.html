@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block titulo %}{{ c.nome }} de {{ v.nome }}{% if total_paginas > 1 %} (página {{ pagina }}){% endif %} · {{ nome_site }}{% endblock %}
+{% block titulo %}{{ c.nome }} de {{ v.nome }}{% if total_paginas > 1 %} (página {{ pagina|milhar }}){% endif %} · {{ nome_site }}{% endblock %}
 {% block conteudo %}
 <section class="bloco">
   <p class="apoio"><a href="../../index.html">Vereadores</a> › <a href="../{{ v.slug }}.html">{{ v.nome }}</a> › {{ c.nome }}</p>
   <h1><span class="ponto {{ c.chave }}" aria-hidden="true"></span> {{ c.nome }} de {{ v.nome }}</h1>
-  <p><strong class="num">{{ c.total }}</strong> em {{ periodo }}, da mais recente para a mais antiga. {{ c.explicacao }}</p>
-  {% if total_paginas > 1 %}<p class="apoio num">Mostrando {{ primeiro }} a {{ ultimo }} de {{ c.total }} · página {{ pagina }} de {{ total_paginas }}</p>{% endif %}
+  <p><strong class="num">{{ c.total|milhar }}</strong> em {{ periodo }}, da mais recente para a mais antiga. {{ c.explicacao }}</p>
+  {% if total_paginas > 1 %}<p class="apoio num">Mostrando {{ primeiro|milhar }} a {{ ultimo|milhar }} de {{ c.total|milhar }} · página {{ pagina|milhar }} de {{ total_paginas|milhar }}</p>{% endif %}
 </section>
 <section class="categoria">
   <ul class="props">

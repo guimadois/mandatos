@@ -7,13 +7,13 @@
 
 <section class="bloco cidade" aria-labelledby="tit-cidade">
   <h2 id="tit-cidade">A Câmara em números</h2>
-  <p><strong class="num grande">{{ "{:,}".format(cidade.total).replace(",", ".") }}</strong> proposições de vereadores em {{ periodo }}
-    {% if cidade.por_ano|length > 1 %}<span class="apoio">({% for a, n in cidade.por_ano %}{{ a }}: {{ "{:,}".format(n).replace(",", ".") }}{% if not loop.last %} · {% endif %}{% endfor %})</span>{% endif %}</p>
+  <p><strong class="num grande">{{ cidade.total|milhar }}</strong> proposições de vereadores em {{ periodo }}
+    {% if cidade.por_ano|length > 1 %}<span class="apoio">({% for a, n in cidade.por_ano %}{{ a }}: {{ n|milhar }}{% if not loop.last %} · {% endif %}{% endfor %})</span>{% endif %}</p>
   {% set comp = cidade.composicao %}{% include "_barra.html" %}
   <ul class="totais">
   {% for c in cidade.composicao %}
     <li class="total {{ c.chave }}">
-      <a class="n num" href="grupo/{{ c.chave }}.html" aria-label="{{ c.total }} {{ c.nome|lower }}: ver todas">{{ "{:,}".format(c.total).replace(",", ".") }}</a>
+      <a class="n num" href="grupo/{{ c.chave }}.html" aria-label="{{ c.total|milhar }} {{ c.nome|lower }}: ver todas">{{ c.total|milhar }}</a>
       <span class="rotulo"><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }}</span>
       <span class="apoio num">{{ c.pct_txt }} do total · <a href="grupo/{{ c.chave }}.html">ver todas</a></span>
     </li>
@@ -49,7 +49,7 @@
       <ul class="contagens">
       {% for c in f.categorias %}
         <li><span class="ponto {{ c.chave }}" aria-hidden="true"></span><span>{{ c.nome }}</span>
-          {% if c.total %}<a class="n num" href="vereador/{{ f.slug }}.html#{{ c.chave }}" aria-label="{{ c.total }} {{ c.nome|lower }} de {{ f.nome }}">{{ c.total }}</a>{% else %}<span class="n num zero">0</span>{% endif %}</li>
+          {% if c.total %}<a class="n num" href="vereador/{{ f.slug }}.html#{{ c.chave }}" aria-label="{{ c.total|milhar }} {{ c.nome|lower }} de {{ f.nome }}">{{ c.total|milhar }}</a>{% else %}<span class="n num zero">0</span>{% endif %}</li>
       {% endfor %}
       </ul>
     </li>

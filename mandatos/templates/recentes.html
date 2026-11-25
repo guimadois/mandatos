@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block titulo %}Mais recentes{% if total_paginas > 1 %} (página {{ pagina }}){% endif %} · {{ nome_site }}{% endblock %}
+{% block titulo %}Mais recentes{% if total_paginas > 1 %} (página {{ pagina|milhar }}){% endif %} · {{ nome_site }}{% endblock %}
 {% block descricao %}As proposições mais recentes dos vereadores de Joinville, com link para cada documento oficial.{% endblock %}
 {% block conteudo %}
 <section class="bloco">
   <p class="apoio"><a href="index.html">Início</a> › Mais recentes</p>
   <h1>Proposições mais recentes</h1>
-  <p>As {{ "{:,}".format(total_itens).replace(",", ".") }} proposições mais recentes de todos os vereadores, da mais nova para a mais antiga. Para ver todo o período, abra um grupo:
+  <p>As {{ total_itens|milhar }} proposições mais recentes de todos os vereadores, da mais nova para a mais antiga. Para ver todo o período, abra um grupo:
     {% for c in cidade.categorias %}<a href="grupo/{{ c.chave }}.html">{{ c.nome|lower }}</a>{% if not loop.last %}, {% endif %}{% endfor %}.</p>
-  {% if total_paginas > 1 %}<p class="apoio num">Mostrando {{ primeiro }} a {{ ultimo }} · página {{ pagina }} de {{ total_paginas }}</p>{% endif %}
+  {% if total_paginas > 1 %}<p class="apoio num">Mostrando {{ primeiro|milhar }} a {{ ultimo|milhar }} · página {{ pagina|milhar }} de {{ total_paginas|milhar }}</p>{% endif %}
 </section>
 <section class="categoria">
   <ul class="props">

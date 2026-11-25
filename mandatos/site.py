@@ -21,6 +21,14 @@ MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "a
          "setembro", "outubro", "novembro", "dezembro"]
 
 
+def milhar(n):
+    """Número no padrão brasileiro: 4007 -> "4.007". Um só lugar para todo número exibido."""
+    try:
+        return f"{int(n):,}".replace(",", ".")
+    except (TypeError, ValueError):
+        return n
+
+
 def data_br(iso):
     if not iso:
         return ""
@@ -68,8 +76,8 @@ def imagem_og(destino, composicao_cidade):
 
 def descricao_vereador(f, periodo):
     """Descrição neutra, só com números, para buscadores e pré-visualização."""
-    partes = [f'{c["total"]} {c["nome"].lower()}' for c in f["categorias"] if c["total"]]
-    return (f'{f["nome"]}: {f["total"]} proposições em {periodo}, como autor ou coautor'
+    partes = [f'{milhar(c["total"])} {c["nome"].lower()}' for c in f["categorias"] if c["total"]]
+    return (f'{f["nome"]}: {milhar(f["total"])} proposições em {periodo}, como autor ou coautor'
             + (": " + ", ".join(partes) if partes else "") + ". Dados oficiais da Câmara de Joinville.")
 
 
@@ -150,6 +158,7 @@ def gerar(saida=SAIDA, pasta_dados=dados.PASTA_DADOS):
     env = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates"),
                       autoescape=select_autoescape(["html"]), trim_blocks=True, lstrip_blocks=True)
     env.filters["data_br"] = data_br
+    env.filters["milhar"] = milhar
     env.filters["data_extenso"] = data_extenso
     ctx = montar_contexto(vereadores, proposicoes, meta)
 

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block titulo %}{{ c.nome }}{% if aba.ano %} em {{ aba.ano }}{% endif %} · Joinville{% if total_paginas > 1 %} (página {{ pagina }}){% endif %} · {{ nome_site }}{% endblock %}
+{% block titulo %}{{ c.nome }}{% if aba.ano %} em {{ aba.ano }}{% endif %} · Joinville{% if total_paginas > 1 %} (página {{ pagina|milhar }}){% endif %} · {{ nome_site }}{% endblock %}
 {% block descricao %}Todas as {{ c.nome|lower }} apresentadas por vereadores de Joinville{% if aba.ano %} em {{ aba.ano }}{% endif %}, com link para cada documento oficial.{% endblock %}
 {% block conteudo %}
 <section class="bloco">
@@ -7,9 +7,9 @@
   <h1><span class="ponto {{ c.chave }}" aria-hidden="true"></span> {{ c.nome }} na Câmara de Joinville</h1>
   <p>{{ c.explicacao }}</p>
   <nav class="abas" aria-label="Filtrar por ano">
-    {% for a in abas %}<a href="{{ a.arquivo }}"{% if a.arquivo == aba.arquivo %} aria-current="page"{% endif %}>{{ a.rotulo }} <span class="num">{{ "{:,}".format(a.total).replace(",", ".") }}</span></a>{% endfor %}
+    {% for a in abas %}<a href="{{ a.arquivo }}"{% if a.arquivo == aba.arquivo %} aria-current="page"{% endif %}>{{ a.rotulo }} <span class="num">{{ a.total|milhar }}</span></a>{% endfor %}
   </nav>
-  <p class="apoio num">{% if total_itens %}{% if total_paginas > 1 %}Mostrando {{ primeiro }} a {{ ultimo }} de {{ "{:,}".format(total_itens).replace(",", ".") }} · página {{ pagina }} de {{ total_paginas }} · {% endif %}da mais recente para a mais antiga. Cada proposição aparece uma vez, com todos os autores.{% else %}Nenhuma proposição neste período.{% endif %}</p>
+  <p class="apoio num">{% if total_itens %}{% if total_paginas > 1 %}Mostrando {{ primeiro|milhar }} a {{ ultimo|milhar }} de {{ total_itens|milhar }} · página {{ pagina|milhar }} de {{ total_paginas|milhar }} · {% endif %}da mais recente para a mais antiga. Cada proposição aparece uma vez, com todos os autores.{% else %}Nenhuma proposição neste período.{% endif %}</p>
 </section>
 <section class="categoria">
   <ul class="props">

@@ -11,11 +11,11 @@
 </section>
 
 <section class="bloco">
-  <p><strong class="num">{{ v.total }}</strong> proposições em {{ periodo }}, como autor ou coautor{% if v.coautoria %} ({{ v.coautoria }} em coautoria){% endif %}.</p>
+  <p><strong class="num">{{ v.total|milhar }}</strong> proposições em {{ periodo }}, como autor ou coautor{% if v.coautoria %} ({{ v.coautoria|milhar }} em coautoria){% endif %}.</p>
   {% set comp = v.composicao %}{% include "_barra.html" %}
   <ul class="resumo-vereador">
   {% for c in v.categorias %}
-    <li><a href="#{{ c.chave }}"><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }} <b>{{ c.total }}</b></a></li>
+    <li><a href="#{{ c.chave }}"><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }} <b>{{ c.total|milhar }}</b></a></li>
   {% endfor %}
   </ul>
   <div class="aviso">
@@ -25,13 +25,13 @@
 
 {% for c in v.categorias %}
 <section class="categoria" id="{{ c.chave }}">
-  <h2><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }} <span class="num apoio">{{ c.total }}</span></h2>
+  <h2><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }} <span class="num apoio">{{ c.total|milhar }}</span></h2>
   <p class="apoio">{{ c.explicacao }}</p>
   {% if c.total %}
   <ul class="props">
     {% for p in c.recentes %}{% include "_proposicao.html" %}{% endfor %}
   </ul>
-  {% if c.total > c.recentes|length %}<a class="mais" href="{{ v.slug }}/{{ c.chave }}.html">Ver todas as {{ c.total }}</a>{% endif %}
+  {% if c.total > c.recentes|length %}<a class="mais" href="{{ v.slug }}/{{ c.chave }}.html">Ver todas as {{ c.total|milhar }}</a>{% endif %}
   {% else %}
   <p>Nenhuma em {{ periodo }}.</p>
   {% endif %}

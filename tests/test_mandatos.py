@@ -211,3 +211,10 @@ def test_open_graph_em_todas_as_paginas(local, tmp_path):
     assert desc.startswith("Instrutor Lucas: ") and "proposições" in desc
     from PIL import Image
     assert Image.open(saida / "og.png").size == (1200, 630)
+
+
+def test_numeros_com_separador_de_milhar():
+    assert site.milhar(4007) == "4.007"
+    assert site.milhar(23274) == "23.274"
+    assert site.milhar(999) == "999"
+    assert site.milhar("1000") == "1.000"
