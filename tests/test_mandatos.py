@@ -99,3 +99,30 @@ def test_site_gera_paginas_com_links_oficiais(local, tmp_path):
     assert "https://camara.joinville.br/documento/indicacao-no-8778-2026-4698118" in pagina
     assert "Arquivado" in pagina  # aviso sobre o significado da situação
     assert (saida / "como-funciona.html").exists()
+
+
+def test_formato_2025_associa_autor_por_nome_exato(local, tmp_path):
+    base = config.BASE + "/DadosAbertos/download/"
+    idx = json.loads((local / "dados-abertos.json").read_text(encoding="utf-8"))
+    idx["arquivos"].append({"tipo": "documentos", "url": base + "documentos-2025.csv", "ano": 2025})
+    (local / "dados-abertos.json").write_text(json.dumps(idx), encoding="utf-8")
+    destino = tmp_path / "dados"
+    assert coletar.main(pasta=destino, cliente=ClienteLocal(local), anos=[2025, 2026]) == 0
+    _, props, _ = dados.carregar(destino)
+    de2025 = [p for p in props.values() if p["ano"] == "2025"]
+    assert de2025
+    tipos = {p["tipo"] for p in de2025}
+    assert "Termo de Posse" not in tipos
+    for p in de2025:
+        assert all(a.get("id_por_nome") for a in p["autores"] if a["id"])
+        assert "Poder Executivo (SEI)" not in [a["nome"] for a in p["autores"]] or any(a["id"] for a in p["autores"])
+    dupla = [p for p in de2025 if [a["nome"] for a in p["autores"]] == ["Instrutor Lucas", "Wilian Tonezi"]]
+    assert dupla and [a["id"] for a in dupla[0]["autores"]] == ["213714", "202230"]
+    # comissão (nome com vírgulas) não vira vereador
+    assert not any(a["nome"].startswith("Comissão") and a["id"] for p in de2025 for a in p["autores"])
+
+
+def test_nome_repetido_nao_e_associado():
+    m = dados.mapa_nome_para_id([{"nome": "X", "id_oficial": "1"}, {"nome": "X", "id_oficial": "2"},
+                                 {"nome": "Y", "id_oficial": "3"}])
+    assert m == {"Y": "3"}

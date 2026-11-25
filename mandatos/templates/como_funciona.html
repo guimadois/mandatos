@@ -21,6 +21,7 @@
   <ul class="lista">
     <li>Os {{ fichas|length }} vereadores titulares da legislatura {{ legislatura }}, conforme a lista oficial. A lista não diz quem está licenciado, então pode incluir quem não está em exercício hoje.</li>
     <li>Proposições de {{ periodo }} em que o vereador aparece como autor ou coautor. Uma proposição com três autores conta para os três.</li>
+    {% if "2025" in anos %}<li>No arquivo de 2025, a Câmara informa só o nome dos autores, sem o código do vereador. Nesse ano, ligamos cada proposição ao vereador pelo nome exatamente igual ao da lista oficial de vereadores, sem aproximações.</li>{% endif %}
     <li>Os partidos aparecem como estão registrados no sistema da Câmara, que guarda o histórico e não indica o partido atual.</li>
     <li>Ficam de fora documentos que não são proposições de vereador, como respostas da Prefeitura, pareceres e atas.</li>
   </ul>

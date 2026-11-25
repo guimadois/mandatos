@@ -27,7 +27,11 @@ LEGISLATURA_ANO_INICIO = 2025
 
 # Colunas que o CSV oficial precisa ter. Se a Câmara mudar o formato, a coleta para e o site não é republicado.
 COLUNAS_DOCUMENTOS = ["Título", "Tipo", "Subtipo", "Número", "Ano", "Data", "Situação",
-                      "Autores", "Ids dos Autores", "Protocolo", "Link no site"]
+                      "Protocolo", "Link no site"]
+# A autoria vem em um de dois formatos, conforme o ano do arquivo:
+#  - 2026 em diante: "Autores" + "Ids dos Autores" (nomes e IDs oficiais)
+#  - 2025: só "Autoria" (nomes). Associamos ao vereador pelo nome EXATO da lista oficial e marcamos id_por_nome.
+FORMATOS_AUTORIA = [["Autores", "Ids dos Autores"], ["Autoria"]]
 COLUNAS_VEREADORES = ["Nome", "Nome Civil", "Partidos", "Legislaturas", "Link no site"]
 
 # Categorias cidadãs PROVISÓRIAS: definidas só pelo tipo oficial do documento, porque o CSV não traz a ementa.

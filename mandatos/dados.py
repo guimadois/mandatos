@@ -48,7 +48,23 @@ def montar_vereadores(linhas):
     return out
 
 
-def _autores(linha):
+def mapa_nome_para_id(vereadores):
+    """Nome exato -> id oficial. Nome repetido entre vereadores não entra no mapa (ambíguo)."""
+    contagem = {}
+    for v in vereadores:
+        contagem[v["nome"]] = contagem.get(v["nome"], 0) + 1
+    return {v["nome"]: v["id_oficial"] for v in vereadores if contagem[v["nome"]] == 1}
+
+
+def _autores(linha, nome_para_id=None):
+    if "Autores" not in linha and "Autoria" in linha:
+        # Formato sem IDs (CSV de 2025): só nome exato; sem aproximação.
+        nomes = [n.strip() for n in (linha.get("Autoria") or "").split(",") if n.strip()]
+        out = []
+        for n in nomes:
+            vid = (nome_para_id or {}).get(n)
+            out.append({"nome": n, "id": vid, "id_por_nome": True} if vid else {"nome": n, "id": None})
+        return out
     nomes = [n.strip() for n in (linha.get("Autores") or "").split(",") if n.strip()]
     ids = [i.strip() for i in (linha.get("Ids dos Autores") or "").split(",") if i.strip()]
     if len(nomes) == len(ids):
@@ -57,14 +73,14 @@ def _autores(linha):
     return [{"nome": n, "id": None} for n in nomes]
 
 
-def montar_proposicoes(linhas, ids_vereadores, url_csv, coletado_em):
+def montar_proposicoes(linhas, ids_vereadores, url_csv, coletado_em, nome_para_id=None):
     """Proposições (tipos de CATEGORIAS) com ao menos um autor vereador da legislatura."""
     out = {}
     for l in linhas:
         subtipo = _limpa(l.get("Subtipo"))
         if subtipo not in config.SUBTIPO_PARA_CATEGORIA:
             continue
-        autores = _autores(l)
+        autores = _autores(l, nome_para_id)
         if not any(a["id"] in ids_vereadores for a in autores):
             continue
         url = _limpa(l.get("Link no site"))

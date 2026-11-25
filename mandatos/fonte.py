@@ -62,7 +62,10 @@ class Cliente:
 
 def ler_csv(texto, colunas, origem="csv"):
     leitor = csv.DictReader(io.StringIO(texto), delimiter=";")
-    faltando = [c for c in colunas if c not in (leitor.fieldnames or [])]
+    campos = leitor.fieldnames or []
+    faltando = [c for c in colunas if c not in campos]
+    if colunas is config.COLUNAS_DOCUMENTOS and not any(all(c in campos for c in f) for f in config.FORMATOS_AUTORIA):
+        faltando.append("Autores+Ids dos Autores ou Autoria")
     if faltando:
         raise FalhaColeta(f"{origem}: colunas ausentes {faltando}; o formato do CSV mudou")
     return list(leitor)

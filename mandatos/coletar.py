@@ -29,10 +29,11 @@ def main(pasta=dados.PASTA_DADOS, cliente=None, anos=None):
 
         vereadores = dados.montar_vereadores(cli.csv(url_ver, config.COLUNAS_VEREADORES))
         ids = {v["id_oficial"] for v in vereadores}
+        nome_para_id = dados.mapa_nome_para_id(vereadores)
         proposicoes = {}
         for ano in sorted(docs):
             linhas = cli.csv(docs[ano], config.COLUNAS_DOCUMENTOS)
-            proposicoes.update(dados.montar_proposicoes(linhas, ids, docs[ano], agora))
+            proposicoes.update(dados.montar_proposicoes(linhas, ids, docs[ano], agora, nome_para_id))
 
         _, anteriores, _ = dados.carregar(pasta)
         dados.preservar_coletado_em(proposicoes, anteriores)
