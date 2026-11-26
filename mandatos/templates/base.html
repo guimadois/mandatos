@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
 <title>{% block titulo %}{{ nome_site }}{% endblock %}</title>
 <meta name="description" content="{% block descricao %}O que cada vereador de Joinville apresenta na Câmara, só com dados oficiais e link para a fonte.{% endblock %}">
 {% set url_pagina = site_url ~ ("" if caminho == "index.html" else caminho) %}
@@ -41,6 +42,12 @@ header.topo .miolo{display:flex;flex-wrap:wrap;align-items:center;justify-conten
 .marca span{color:var(--destaque)}
 nav.menu{display:flex;gap:18px;font-size:.95rem}
 nav.menu a{text-decoration:none;font-weight:600}
+nav.menu a:hover{text-decoration:underline}
+/* #32: link para pular o cabeçalho, visível só no foco do teclado */
+.pular{position:absolute;left:12px;top:-60px;z-index:10;background:var(--papel);padding:8px 14px;border:2px solid var(--destaque);border-radius:8px;font-weight:600}
+.pular:focus{top:12px}
+main:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
 main{padding-block:28px 56px}
 main .miolo{display:flex;flex-direction:column;gap:36px}
 h1,h2,h3{line-height:1.2;text-wrap:balance;margin:0}
@@ -131,6 +138,7 @@ ul.lista{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
 .metodo a{font-size:.9rem;font-weight:600;margin-top:auto}
 .abas{display:flex;flex-wrap:wrap;gap:8px}
 .abas a{border:1px solid var(--linha);border-radius:999px;padding:4px 14px;text-decoration:none;color:var(--tinta);font-size:.93rem}
+.abas a:hover{border-color:var(--destaque)}
 .abas a[aria-current="page"]{background:var(--destaque);border-color:var(--destaque);color:#fff}
 .filtros{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end}
 .filtros div{display:flex;flex-direction:column;gap:4px;min-width:0}
@@ -148,6 +156,7 @@ footer.rodape .miolo{padding-block:22px;display:flex;flex-direction:column;gap:6
 </style>
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <header class="topo faixa">
   <div class="miolo">
     <a class="marca" href="{{ raiz }}index.html">{{ marca }} <span>{{ local }}</span></a>
@@ -161,7 +170,7 @@ footer.rodape .miolo{padding-block:22px;display:flex;flex-direction:column;gap:6
 <div class="conferido faixa" id="conferido">
   <div class="miolo">Dados conferidos em <time datetime="{{ meta.coletado_em }}">{{ meta.coletado_em|data_extenso }}</time><span id="conferido-ha"></span>{% if meta.modo != "manual" %} · atualização automática{% endif %}<span id="conferido-aviso"></span></div>
 </div>
-<main class="faixa"><div class="miolo">
+<main class="faixa" id="conteudo" tabindex="-1"><div class="miolo">
 {% block conteudo %}{% endblock %}
 </div></main>
 <footer class="rodape faixa">

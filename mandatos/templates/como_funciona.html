@@ -47,6 +47,7 @@
   <p><strong>Conta:</strong> {{ subsidio.cadeiras }} cadeiras × subsídio de cada mês × meses completos, de {{ estimativa.de }} até o último mês completo. Até {{ estimativa.ate }}:</p>
   <div class="tabela">
   <table class="regra">
+    <caption class="sr">Estimativa do subsídio pago, por período</caption>
     <thead><tr><th>Período</th><th>Subsídio por mês</th><th>Meses</th><th>Subtotal ({{ subsidio.cadeiras }} cadeiras)</th></tr></thead>
     <tbody>
     {% for l in estimativa.linhas %}
@@ -75,7 +76,7 @@
 <section class="bloco" id="fotos">
   <h2>De onde vêm as fotos</h2>
   <p>As fotos são as que cada vereador entregou à Justiça Eleitoral ao registrar a candidatura nas Eleições {{ tse.ano }}. Elas estão nos <a href="{{ tse.dataset }}" rel="noopener">Dados Abertos do TSE</a>, sob licença <a href="{{ tse.licenca_url }}" rel="noopener">{{ tse.licenca }}</a>. Não usamos fotos do site da Câmara.</p>
-  <p>Ligamos o vereador à candidatura só quando o nome é idêntico ao do TSE, entre os candidatos a vereador de Joinville. Quando o nome é diferente nas duas fontes (por exemplo, "Neto Petters" na Câmara e "Neto Petters do Novo" na urna), o vínculo foi conferido manualmente, um a um, por nome completo e partido{% if tse.manuais %}: {{ tse.manuais|join(", ") }}{% endif %}. Quem não tem correspondência aparece com as iniciais do nome, sem foto.{% if tse.com_foto < fichas|length %} Hoje, {{ tse.com_foto }} de {{ fichas|length }} vereadores têm foto.{% endif %}</p>
+  <p>Ligamos o vereador à candidatura só quando o nome é idêntico ao do TSE, entre os candidatos a vereador de Joinville. Quando o nome é diferente nas duas fontes (por exemplo, “Neto Petters” na Câmara e “Neto Petters do Novo” na urna), o vínculo foi conferido manualmente, um a um, por nome completo e partido{% if tse.manuais %}: {{ tse.manuais|join(", ") }}{% endif %}. Quem não tem correspondência aparece com as iniciais do nome, sem foto.{% if tse.com_foto < fichas|length %} Hoje, {{ tse.com_foto }} de {{ fichas|length }} vereadores têm foto.{% endif %}</p>
 </section>
 
 <section class="bloco" id="categorias">
@@ -83,6 +84,7 @@
   <p>Por enquanto, cada proposição entra em um grupo só pelo seu tipo oficial. A mesma regra vale para todos os vereadores.</p>
   <div class="tabela">
   <table class="regra">
+    <caption class="sr">Grupos e tipos oficiais de proposição incluídos em cada um</caption>
     <thead><tr><th>Grupo</th><th>Tipos oficiais incluídos</th></tr></thead>
     <tbody>
     {% for c in categorias %}
@@ -100,7 +102,7 @@
   <ul class="lista">
     <li><strong>Pedido não é obra feita.</strong> Uma indicação é uma sugestão à Prefeitura.</li>
     <li><strong>Projeto de lei não é lei aprovada.</strong> O projeto ainda passa por comissões e votação.</li>
-    <li><strong>"Arquivado"</strong> quer dizer que a tramitação do documento terminou na Câmara. Não quer dizer que foi rejeitado nem que foi atendido.</li>
+    <li><strong>“Arquivado”</strong> quer dizer que a tramitação do documento terminou na Câmara. Não quer dizer que foi rejeitado nem que foi atendido.</li>
   </ul>
 </section>
 

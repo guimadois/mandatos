@@ -28,7 +28,7 @@
     <li class="total {{ c.chave }}">
       <a class="n num" href="grupo/{{ c.chave }}.html" aria-label="{{ c.total|milhar }} {{ c.nome|lower }}: ver todas">{{ c.total|milhar }}</a>
       <span class="rotulo"><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }}</span>
-      <span class="apoio num">{{ c.pct_txt }} do total · <a href="grupo/{{ c.chave }}.html">ver todas</a></span>
+      <span class="apoio num">{{ c.pct_txt }} do total · <a href="grupo/{{ c.chave }}.html" aria-hidden="true" tabindex="-1">ver todas</a></span>
     </li>
   {% endfor %}
   </ul>
@@ -48,9 +48,9 @@
   <p class="apoio">{{ fichas|length }} vereadores titulares da legislatura {{ legislatura }}, em ordem alfabética. Nas fichas contamos autoria e coautoria. O site não dá nota nem faz ranking.{% if tse.com_foto %} Fotos: <a href="{{ tse.dataset }}" rel="noopener">TSE, Eleições {{ tse.ano }}</a> (<a href="{{ tse.licenca_url }}" rel="noopener">{{ tse.licenca }}</a>).{% endif %}</p>
   <form class="filtros" role="search" aria-label="Encontrar vereador" hidden>
     <div><label for="busca-nome">Nome</label>
-      <input id="busca-nome" type="search" placeholder="Digite um nome" autocomplete="off"></div>
+      <input id="busca-nome" name="nome" type="search" placeholder="Digite um nome…" autocomplete="off"></div>
     <div><label for="filtro-partido">Partido <span class="apoio">(qualquer um do histórico registrado)</span></label>
-      <select id="filtro-partido"><option value="">Todos</option>{% for p in partidos %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select></div>
+      <select id="filtro-partido" name="partido"><option value="">Todos</option>{% for p in partidos %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select></div>
     <p class="apoio" id="filtro-status" aria-live="polite"></p>
   </form>
   <ul class="fichas" id="fichas">
@@ -90,7 +90,7 @@
     <li><h3>De onde vêm os dados</h3><p>Dos arquivos de Dados Abertos da Câmara de Vereadores de Joinville. Cada proposição leva ao documento oficial.</p><a href="como-funciona.html#fontes">Fontes e data da coleta</a></li>
     <li><h3>Como agrupamos</h3><p>Cada proposição entra em um grupo pelo seu tipo oficial. A mesma regra vale para todos os vereadores.</p><a href="como-funciona.html#categorias">Veja a regra</a></li>
     <li><h3>Pedido não é obra feita</h3><p>Uma indicação é uma sugestão à Prefeitura. Os dados da Câmara não informam se o pedido foi atendido.</p><a href="como-funciona.html#situacao">Entenda as etapas</a></li>
-    <li><h3>"Arquivado" não é rejeitado</h3><p>Quer dizer que a tramitação terminou na Câmara. Não diz se o pedido foi atendido nem se foi recusado.</p><a href="como-funciona.html#situacao">O que a situação quer dizer</a></li>
+    <li><h3>“Arquivado” não é rejeitado</h3><p>Quer dizer que a tramitação terminou na Câmara. Não diz se o pedido foi atendido nem se foi recusado.</p><a href="como-funciona.html#situacao">O que a situação quer dizer</a></li>
     <li><h3>Achou um erro?</h3><p>Compare com o documento oficial pelo link de cada proposição e nos avise.</p>{% if contato_correcao %}<a href="{{ contato_correcao }}">Avisar um erro</a>{% else %}<span class="apoio">Canal em preparação</span>{% endif %}</li>
   </ul>
 </section>
