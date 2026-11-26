@@ -159,7 +159,7 @@ footer.rodape .miolo{padding-block:22px;display:flex;flex-direction:column;gap:6
   </div>
 </header>
 <div class="conferido faixa" id="conferido">
-  <div class="miolo">Dados conferidos em <time datetime="{{ meta.coletado_em }}">{{ meta.coletado_em|data_extenso }}</time><span id="conferido-ha"></span> · {% if meta.modo == "manual" %}atualização manual{% else %}atualização automática{% endif %}<span id="conferido-aviso"></span></div>
+  <div class="miolo">Dados conferidos em <time datetime="{{ meta.coletado_em }}">{{ meta.coletado_em|data_extenso }}</time><span id="conferido-ha"></span>{% if meta.modo != "manual" %} · atualização automática{% endif %}<span id="conferido-aviso"></span></div>
 </div>
 <main class="faixa"><div class="miolo">
 {% block conteudo %}{% endblock %}

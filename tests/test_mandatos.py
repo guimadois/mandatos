@@ -89,6 +89,19 @@ def test_autores_desalinhados_nao_sao_pareados():
     assert dados._autores(linha) == [{"nome": "A", "id": None}, {"nome": "B", "id": None}]
 
 
+def test_modo_de_atualizacao_so_aparece_quando_automatico(local, tmp_path):
+    """Coleta automática mostra "atualização automática"; manual não mostra nada sobre o modo."""
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    meta = json.loads((destino / "meta.json").read_text(encoding="utf-8"))
+    for modo, esperado in (("automatico", True), ("manual", False)):
+        meta["modo"] = modo
+        (destino / "meta.json").write_text(json.dumps(meta), encoding="utf-8")
+        index = (site.gerar(saida=tmp_path / f"_site_{modo}", pasta_dados=destino) / "index.html").read_text(encoding="utf-8")
+        assert ("atualização automática" in index) is esperado
+        assert "atualização manual" not in index
+
+
 def test_site_gera_paginas_com_links_oficiais(local, tmp_path):
     destino = tmp_path / "dados"
     _coleta(local, destino)
