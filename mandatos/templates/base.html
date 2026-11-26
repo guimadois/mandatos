@@ -103,6 +103,11 @@ p{margin:0;max-width:66ch}
 .resumo-vereador a{display:flex;align-items:center;gap:8px;border:1px solid var(--linha);border-radius:999px;padding:6px 14px;text-decoration:none;color:var(--tinta);font-size:.93rem}
 .resumo-vereador a:hover{border-color:var(--destaque)}
 .resumo-vereador b{font-variant-numeric:tabular-nums}
+/* #31: categorias do vereador; sem JS, seções empilhadas; com JS, abas */
+.categorias{display:flex;flex-direction:column;gap:36px}
+.categorias.com-abas{gap:20px}
+.resumo-vereador a[aria-selected="true"]{background:var(--destaque);border-color:var(--destaque);color:#fff}
+.resumo-vereador a[aria-selected="true"] .ponto{box-shadow:0 0 0 2px #fff}
 
 table.regra{border-collapse:collapse;width:100%;font-size:.93rem}
 .tabela{overflow-x:auto}

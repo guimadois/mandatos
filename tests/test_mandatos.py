@@ -193,6 +193,37 @@ def test_paginas_de_grupo_da_cidade_e_recentes(local, tmp_path):
     assert re.search(r'Autoria: <a href="vereador/[a-z0-9-]+\.html">', recentes)
 
 
+def test_home_mostra_poucas_recentes(local, tmp_path):
+    """#30: o bloco "Mais recentes" da home mostra só RECENTES_HOME itens."""
+    import re
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    _, props, _ = dados.carregar(destino)
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino)
+    index = (saida / "index.html").read_text(encoding="utf-8")
+    bloco = re.search(r'<ul class="props">(.*?)</ul>', index, re.S).group(1)
+    assert site.RECENTES_HOME == 5
+    assert bloco.count('class="tit"') == min(len(props), site.RECENTES_HOME)
+
+
+def test_vereador_categorias_em_abas(local, tmp_path):
+    """#31: uma aba por categoria, na ordem da config, ligada à seção; seções seguem no HTML (sem JS)."""
+    import re
+    destino = tmp_path / "dados"
+    _coleta(local, destino)
+    saida = site.gerar(saida=tmp_path / "_site", pasta_dados=destino)
+    paginas = list((saida / "vereador").glob("*.html"))
+    assert paginas
+    ordem = [c["chave"] for c in config.CATEGORIAS]
+    for pag in paginas:
+        html = pag.read_text(encoding="utf-8")
+        assert re.findall(r'data-aba="([a-z]+)"', html) == ordem
+        for k in ordem:
+            assert f'href="#{k}" id="aba-{k}"' in html
+            assert f'<section class="categoria" id="{k}">' in html
+        assert 'setAttribute("role","tablist")' in html
+
+
 def test_open_graph_em_todas_as_paginas(local, tmp_path):
     """#7: tags de pré-visualização com URL absoluta e imagem gerada."""
     import re

@@ -14,7 +14,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 SAIDA = RAIZ / "_site"
 RECENTES_POR_CATEGORIA = 10
 POR_PAGINA = 100  # listas longas viram páginas estáticas de até 100 itens (#6)
-RECENTES_HOME = 10      # feed da home (#2)
+RECENTES_HOME = 5       # feed da home (#2, #30)
 RECENTES_MAX = 500      # página "Mais recentes": as 500 últimas; as mais antigas ficam nas páginas de grupo
 
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto",

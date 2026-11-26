@@ -20,15 +20,18 @@
 <section class="bloco">
   <p><strong class="num">{{ v.total|milhar }}</strong> proposições em {{ periodo }}, como autor ou coautor{% if v.coautoria %} ({{ v.coautoria|milhar }} em coautoria){% endif %}.</p>
   {% set comp = v.composicao %}{% include "_barra.html" %}
-  <ul class="resumo-vereador">
-  {% for c in v.categorias %}
-    <li><a href="#{{ c.chave }}"><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }} <b>{{ c.total|milhar }}</b></a></li>
-  {% endfor %}
-  </ul>
   <div class="aviso">
     <p>O resumo de cada proposição (ementa) ainda não está nos dados abertos da Câmara. Toque no documento para ler no site oficial. A situação é a etapa do documento na Câmara: "Arquivado" quer dizer que a tramitação terminou lá e não diz se o pedido foi atendido. <a href="../como-funciona.html#situacao">Entenda</a>.</p>
   </div>
 </section>
+
+{# #31: sem JS é um índice de âncoras e as seções ficam empilhadas; com JS vira abas #}
+<div class="categorias" id="categorias">
+<ul class="resumo-vereador" aria-label="Tipos de proposição">
+{% for c in v.categorias %}
+  <li><a href="#{{ c.chave }}" id="aba-{{ c.chave }}" data-aba="{{ c.chave }}"><span class="ponto {{ c.chave }}" aria-hidden="true"></span>{{ c.nome }} <b>{{ c.total|milhar }}</b></a></li>
+{% endfor %}
+</ul>
 
 {% for c in v.categorias %}
 <section class="categoria" id="{{ c.chave }}">
@@ -44,4 +47,45 @@
   {% endif %}
 </section>
 {% endfor %}
+</div>
+<script>
+/* #31: abas acessíveis (WAI-ARIA tabs). Abre a categoria da âncora (#mocoes); sem âncora, a primeira, igual para todos. */
+(function(){
+  var lista=document.querySelector("#categorias .resumo-vereador"); if(!lista) return;
+  var abas=[].slice.call(lista.querySelectorAll("a[data-aba]"));
+  var paineis={};
+  abas.forEach(function(a){
+    var k=a.getAttribute("data-aba"), p=document.getElementById(k); if(!p) return;
+    paineis[k]=p;
+    a.setAttribute("role","tab"); a.setAttribute("aria-controls",k); a.parentNode.setAttribute("role","presentation");
+    p.setAttribute("role","tabpanel"); p.setAttribute("aria-labelledby","aba-"+k);
+  });
+  lista.setAttribute("role","tablist");
+  document.getElementById("categorias").classList.add("com-abas");
+  function abrir(k,foco){
+    if(!paineis[k]) return false;
+    abas.forEach(function(a){
+      var ativa=a.getAttribute("data-aba")===k;
+      a.setAttribute("aria-selected",ativa?"true":"false"); a.setAttribute("tabindex",ativa?"0":"-1");
+      paineis[a.getAttribute("data-aba")].hidden=!ativa;
+      if(ativa&&foco) a.focus();
+    });
+    return true;
+  }
+  abas.forEach(function(a,i){
+    a.addEventListener("click",function(e){
+      e.preventDefault(); var k=a.getAttribute("data-aba");
+      abrir(k,false); history.replaceState(null,"","#"+k);
+    });
+    a.addEventListener("keydown",function(e){
+      var j={ArrowRight:i+1,ArrowLeft:i-1,Home:0,End:abas.length-1}[e.key]; if(j===undefined) return;
+      e.preventDefault(); j=(j+abas.length)%abas.length;
+      var k=abas[j].getAttribute("data-aba"); abrir(k,true); history.replaceState(null,"","#"+k);
+    });
+  });
+  function daAncora(){return abrir(decodeURIComponent(location.hash.slice(1)),false);}
+  window.addEventListener("hashchange",daAncora);
+  if(!daAncora()) abrir(abas[0].getAttribute("data-aba"),false);
+})();
+</script>
 {% endblock %}
